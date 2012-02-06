@@ -1,8 +1,10 @@
 require "bundler"
 Bundler.setup
 
-load 'jasmine/tasks/jasmine.rake'
+require "jasmine"
+require "jasmine-sprockets"
 
+load 'jasmine/tasks/jasmine.rake'
 
 task :build do
   require "sprockets"

@@ -1,5 +1,132 @@
 
 (function(exports) {
+/**
+  Define an assertion that will throw an exception if the condition is not 
+  met.  Ember build tools will remove any calls to ember_assert() when 
+  doing a production build.
+  
+  ## Examples
+  
+      #js:
+      
+      // pass a simple Boolean value
+      ember_assert('must pass a valid object', !!obj);
+
+      // pass a function.  If the function returns false the assertion fails
+      // any other return value (including void) will pass.
+      ember_assert('a passed record must have a firstName', function() {
+        if (obj instanceof Ember.Record) {
+          return !Ember.empty(obj.firstName);
+        }
+      });
+      
+  @static
+  @function
+  @param {String} desc
+    A description of the assertion.  This will become the text of the Error
+    thrown if the assertion fails.
+    
+  @param {Boolean} test
+    Must return true for the assertion to pass.  If you pass a function it
+    will be executed.  If the function returns false an exception will be
+    thrown.
+*/
+window.ember_assert = window.sc_assert = function ember_assert(desc, test) {
+  if ('function' === typeof test) test = test()!==false;
+  if (!test) throw new Error("assertion failed: "+desc);
+};
+
+
+/**
+  Display a warning with the provided message. Ember build tools will
+  remove any calls to ember_warn() when doing a production build.
+
+  @static
+  @function
+  @param {String} message
+    A warning to display.
+
+  @param {Boolean} test
+    An optional boolean or function. If the test returns false, the warning
+    will be displayed.
+*/
+window.ember_warn = function(message, test) {
+  if (arguments.length === 1) { test = false; }
+  if ('function' === typeof test) test = test()!==false;
+  if (!test) console.warn("WARNING: "+message);
+}
+
+
+
+/**
+  Display a deprecation warning with the provided message and a stack trace
+  (Chrome and Firefox only). Ember build tools will remove any calls to
+  ember_deprecate() when doing a production build.
+
+  @static
+  @function
+  @param {String} message
+    A description of the deprecation.
+
+  @param {Boolean} test
+    An optional boolean or function. If the test returns false, the deprecation
+    will be displayed.
+*/
+window.ember_deprecate = function(message, test) {
+  if (arguments.length === 1) { test = false; }
+  if ('function' === typeof test) { test = test()!==false; }
+  if (test) { return; }
+
+  var error, stackStr = '';
+
+  // When using new Error, we can't do the arguments check for Chrome. Alternatives are welcome
+  try { __fail__; } catch (e) { error = e; }
+
+  if (error.stack) {
+    var stack;
+
+    if (error['arguments']) {
+      // Chrome
+      stack = error.stack.replace(/^\s+at\s+/gm, '').
+                          replace(/^([^\(]+?)([\n$])/gm, '{anonymous}($1)$2').
+                          replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, '{anonymous}($1)').split('\n');
+      stack.shift();
+    } else {
+      // Firefox
+      stack = error.stack.replace(/(?:\n@:0)?\s+$/m, '').
+                          replace(/^\(/gm, '{anonymous}(').split('\n');
+    }
+
+    stackStr = "\n    " + stack.slice(2).join("\n    ");
+  }
+
+  console.warn("DEPRECATION: "+message+stackStr);
+};
+
+
+
+/**
+  Display a deprecation warning with the provided message and a stack trace
+  (Chrome and Firefox only) when the wrapped method is called.
+
+  @static
+  @function
+  @param {String} message
+    A description of the deprecation.
+
+  @param {Function} func
+    The function to be deprecated.
+*/
+window.ember_deprecateFunc = function(message, func) {
+  return function() {
+    window.ember_deprecate(message);
+    return func.apply(this, arguments);
+  };
+};
+
+})({});
+
+(function(exports) {
 // lib/handlebars/base.js
 var Handlebars = {};
 
@@ -1670,41 +1797,22 @@ Ember.K = function() { return this; };
   @description The global window object
 */
 
-/**
-  Define an assertion that will throw an exception if the condition is not 
-  met.  Ember build tools will remove any calls to ember_assert() when 
-  doing a production build.
-  
-  ## Examples
-  
-      #js:
-      
-      // pass a simple Boolean value
-      ember_assert('must pass a valid object', !!obj);
 
-      // pass a function.  If the function returns false the assertion fails
-      // any other return value (including void) will pass.
-      ember_assert('a passed record must have a firstName', function() {
-        if (obj instanceof Ember.Record) {
-          return !Ember.empty(obj.firstName);
-        }
-      });
-      
-  @static
-  @function
-  @param {String} desc
-    A description of the assertion.  This will become the text of the Error
-    thrown if the assertion fails.
-    
-  @param {Boolean} test
-    Must return true for the assertion to pass.  If you pass a function it
-    will be executed.  If the function returns false an exception will be
-    thrown.
-*/
-window.ember_assert = window.sc_assert = function ember_assert(desc, test) {
-  if ('function' === typeof test) test = test()!==false;
-  if (!test) throw new Error("assertion failed: "+desc);
+// Stub out the methods defined by the ember-debug package in case it's not loaded
+
+if ('undefined' === typeof ember_assert) { 
+  window.ember_assert = window.sc_assert = Ember.K;
 };
+
+if ('undefined' === typeof ember_warn) { window.ember_warn = Ember.K; }
+
+if ('undefined' === typeof ember_deprecate) { window.ember_deprecate = Ember.K; }
+
+if ('undefined' === typeof ember_deprecateFunc) {
+  window.ember_deprecateFunc = function(_, func) { return func; };
+}
+
+
 
 //if ('undefined' === typeof ember_require) ember_require = Ember.K;
 if ('undefined' === typeof require) require = Ember.K;
@@ -2031,7 +2139,7 @@ if (Object.freeze) Object.freeze(EMPTY_META);
   The meta object contains information about computed property descriptors as
   well as any watched properties and other information.  You generally will
   not access this information directly but instead work with higher level 
-  methods that manipulate this has indirectly.
+  methods that manipulate this hash indirectly.
 
   @param {Object} obj
     The object to retrieve meta for
@@ -2465,7 +2573,7 @@ Ember.normalizeTuple = function(target, path) {
 Ember.normalizeTuple.primitive = normalizeTuple;
 
 Ember.getPath = function(root, path, _checkGlobal) {
-  var hasThis, hasStar, isGlobal, ret;
+  var pathOnly, hasThis, hasStar, isGlobal, ret;
   
   // Helpers that operate with 'this' within an #each
   if (path === '') {
@@ -2475,6 +2583,7 @@ Ember.getPath = function(root, path, _checkGlobal) {
   if (!path && 'string'===typeof root) {
     path = root;
     root = null;
+    pathOnly = true;
   }
 
   hasStar = path.indexOf('*') > -1;
@@ -2489,9 +2598,7 @@ Ember.getPath = function(root, path, _checkGlobal) {
   hasThis  = HAS_THIS.test(path);
 
   if (!root || hasThis || hasStar) {
-    if (root && root !== window && IS_GLOBAL.test(path)) {
-      console.warn("Fetching globals with Ember.getPath is deprecated", root, path);
-    }
+    ember_deprecate("Fetching globals with Ember.getPath is deprecated (root: "+root+", path: "+path+")", !root || root === window || !IS_GLOBAL.test(path));
 
     var tuple = normalizeTuple(root, path);
     root = tuple[0];
@@ -2501,8 +2608,8 @@ Ember.getPath = function(root, path, _checkGlobal) {
 
   ret = getPath(root, path);
 
-  if (ret === undefined && root !== window && !hasThis && IS_GLOBAL.test(path) && _checkGlobal !== false) {
-    console.warn("Fetching globals with Ember.getPath is deprecated", root, path);
+  if (ret === undefined && !pathOnly && !hasThis && root !== window && IS_GLOBAL.test(path) && _checkGlobal !== false) {
+    ember_deprecate("Fetching globals with Ember.getPath is deprecated (root: "+root+", path: "+path+")");
     return Ember.getPath(window, path);
   } else {
     return ret;
@@ -2520,9 +2627,7 @@ Ember.setPath = function(root, path, value, tolerant) {
   
   path = normalizePath(path);
   if (path.indexOf('*')>0) {
-    if (root && root !== window && IS_GLOBAL.test(path)) {
-      console.warn("Setting globals with Ember.setPath is deprecated", path);
-    };
+    ember_deprecate("Setting globals with Ember.setPath is deprecated (path: "+path+")", !root || root === window || !IS_GLOBAL.test(path));
 
     var tuple = normalizeTuple(root, path);
     root = tuple[0];
@@ -2537,7 +2642,7 @@ Ember.setPath = function(root, path, value, tolerant) {
       // Remove the `false` when we're done with this deprecation
       root = Ember.getPath(root, path, false);
       if (!root && IS_GLOBAL.test(path)) {
-        console.warn("Setting globals with Ember.setPath is deprecated", path);
+        ember_deprecate("Setting globals with Ember.setPath is deprecated (path: "+path+")");
         root = Ember.getPath(window, path);
       }
     }
@@ -4374,7 +4479,7 @@ Ember.run.cancel = function(timer) {
 
   Use `#js:Ember.run.begin()` instead
 */
-Ember.RunLoop.begin = Ember.run.begin;
+Ember.RunLoop.begin = ember_deprecateFunc("Use Ember.run.begin instead of Ember.RunLoop.begin.", Ember.run.begin);
 
 /**
   @deprecated
@@ -4382,7 +4487,7 @@ Ember.RunLoop.begin = Ember.run.begin;
 
   Use `#js:Ember.run.end()` instead
 */
-Ember.RunLoop.end = Ember.run.end;
+Ember.RunLoop.end = ember_deprecateFunc("Use Ember.run.end instead of Ember.RunLoop.end.", Ember.run.end);
 
 
 
@@ -5422,6 +5527,30 @@ Cp.cacheable = function(aFlag) {
 */
 Cp.property = function() {
   this._dependentKeys = a_slice.call(arguments);
+  return this;
+};
+
+/**
+  In some cases, you may want to annotate computed properties with additional
+  metadata about how they function or what values they operate on. For example,
+  computed property functions may close over variables that are then no longer
+  available for introspection.
+
+  You can pass a hash of these values to a computed property like this:
+
+      person: function() {
+        var personId = this.get('personId');
+        return App.Person.create({ id: personId });
+      }.property().meta({ type: App.Person })
+
+  The hash that you pass to the `meta()` function will be saved on the
+  computed property descriptor under the `_meta` key. Ember runtime
+  exposes a public API for retrieving these values from classes,
+  via the `metaForProperty()` function.
+*/
+
+Cp.meta = function(meta) {
+  this._meta = meta;
   return this;
 };
 
@@ -8286,6 +8415,30 @@ var ClassMixin = Ember.Mixin.create({
 
   detectInstance: function(obj) {
     return this.PrototypeMixin.detect(obj);
+  },
+
+  /**
+    In some cases, you may want to annotate computed properties with additional
+    metadata about how they function or what values they operate on. For example,
+    computed property functions may close over variables that are then no longer
+    available for introspection.
+
+    You can pass a hash of these values to a computed property like this:
+
+        person: function() {
+          var personId = this.get('personId');
+          return App.Person.create({ id: personId });
+        }.property().meta({ type: App.Person })
+
+    Once you've done this, you can retrieve the values saved to the computed
+    property from your class like this:
+
+        MyClass.metaForProperty('person');
+
+    This will return the original hash that was passed to `meta()`.
+  */
+  metaForProperty: function(key) {
+    return meta(get(this, 'proto'), false).descs[key]._meta;
   }
 
 });
@@ -9428,7 +9581,7 @@ Ember.Set = Ember.CoreObject.extend(Ember.MutableEnumerable, Ember.Copyable, Emb
 var o_create = Ember.Set.create;
 Ember.Set.create = function(items) {
   if (items && Ember.Enumerable.detect(items)) {
-    Ember.Logger.warn('Passing an enumerable to Ember.Set.create() is deprecated and will be removed in a future version of Ember.  Use new Ember.Set(items) instead');
+    ember_deprecate('Passing an enumerable to Ember.Set.create() is deprecated and will be removed in a future version of Ember.  Use new Ember.Set(items) instead.');
     return new Ember.Set(items);
   } else {
     return o_create.apply(this, arguments);
@@ -11536,7 +11689,11 @@ Ember.View = Ember.Object.extend(
         property = split[0],
         className = split[1];
 
-    var val = Ember.getPath(this, property);
+    // TODO: Remove this `false` when the `getPath` globals support is removed
+    var val = Ember.getPath(this, property, false);
+    if (val === undefined && Ember.isGlobalPath(property)) {
+      val = Ember.getPath(window, property);
+    }
 
     // If value is a Boolean and true, return the dasherized property
     // name.
@@ -13441,18 +13598,26 @@ Ember.StateManager = Ember.State.extend(
         if (log) { console.log("STATEMANAGER: Entering " + state.name); }
         state.enter(stateManager, transition);
       }, function() {
-        var startState = state, enteredState, initialSubstate;
+        var startState = state, enteredState, initialState;
 
-        initialSubstate = get(startState, 'initialSubstate');
+        initialState = get(startState, 'initialState');
 
-        if (!initialSubstate) {
-          initialSubstate = 'start';
+        if (!initialState) {
+          initialState = 'start';
         }
 
         // right now, start states cannot be entered asynchronously
-        while (startState = get(startState, initialSubstate)) {
+        while (startState = get(startState, initialState)) {
           enteredState = startState;
+
+          if (log) { console.log("STATEMANAGER: Entering " + startState.name); }
           startState.enter(stateManager);
+
+          initialState = get(startState, 'initialState');
+
+          if (!initialState) {
+            initialState = 'start';
+          }
         }
 
         set(this, 'currentState', enteredState || state);
@@ -15576,16 +15741,26 @@ EmberHandlebars.registerHelper('action', function(actionName, options) {
 // to Ember.CoreView in the global Ember.TEMPLATES object. This will be run as as
 // jQuery DOM-ready callback.
 //
-// Script tags with type="text/html" or "text/x-handlebars" will be compiled
+// Script tags with "text/x-handlebars" will be compiled
 // with Ember's Handlebars and are suitable for use as a view's template.
 // Those with type="text/x-raw-handlebars" will be compiled with regular
 // Handlebars and are suitable for use in views' computed properties.
 Ember.Handlebars.bootstrap = function(ctx) {
-  Ember.$('script[type="text/html"], script[type="text/x-handlebars"], script[type="text/x-raw-handlebars"]', ctx)
+  var selectors = 'script[type="text/x-handlebars"], script[type="text/x-raw-handlebars"]';
+
+  if (Ember.ENV.LEGACY_HANDLEBARS_TAGS) { selectors += ', script[type="text/html"]'; }
+
+  ember_warn("Ember no longer parses text/html script tags by default. Set ENV.LEGACY_HANDLEBARS_TAGS = true to restore this functionality.", Ember.ENV.LEGACY_HANDLEBARS_TAGS || Ember.$('script[type="text/html"]').length === 0);
+
+  Ember.$(selectors, ctx)
     .each(function() {
     // Get a reference to the script tag
     var script = Ember.$(this),
-      compile = (script.attr('type') === 'text/x-raw-handlebars') ?
+        type   = script.attr('type');
+
+    if (type === 'text/html' && !Ember.ENV.LEGACY_HANDLEBARS_TAGS) { return; }
+
+    var compile = (script.attr('type') === 'text/x-raw-handlebars') ?
                   Ember.$.proxy(Handlebars.compile, Handlebars) :
                   Ember.$.proxy(Ember.Handlebars.compile, Ember.Handlebars),
       // Get the name of the script, used by Ember.View's templateName property.
