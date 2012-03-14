@@ -15,13 +15,18 @@ beforeEach(function() {
       var difference = Math.abs(this.actual.valueOf() - expectedDate.valueOf());
       // Dates must be within 5000ms
       return difference < 5000;
+    },
+    toBeTrue: function(expected){
+      return this.actual === true;
+    },
+    toBeFalse: function(expected){
+      return this.actual === false;
     }
   });
 });
 
 var createStanza = function(string){
-  // Turn string into document element
-  return $($.parseXML(string));
+  return new Frabjous.Stanza(string);
 };
 
 var parseStanza = function(string){

@@ -27,21 +27,19 @@ Frabjous.Delay.instance_properties = {
 Frabjous.Message.reopen( Frabjous.Delay.instance_properties );
 Frabjous.Presence.reopen( Frabjous.Delay.instance_properties );
 
-Frabjous.Parser.register("XEP-0203", function($stanza){
-  var interesting_stanza = $stanza.find("message");
-  if(interesting_stanza.length > 0){
+Frabjous.Parser.register("XEP-0203", function(stanza){
+  if( stanza.is_message() || stanza.is_presence() ){
     // At least have a message or presence, so add a created_at
-    var id = $(interesting_stanza).attr('id');
     parsed = {
-      id: id,
+      id: stanza.id(),
       created_at: Frabjous.Xep0082.toString(new Date())
     };
     
-    var delay_stanza = $stanza.find("delay[xmlns='urn:xmpp:delay']");
+    var delay_stanza = stanza.root().find("delay[xmlns='urn:xmpp:delay']");
     if(delay_stanza.length > 0){
       var $delay_stanza = $(delay_stanza);
       var delay = {
-        id:     id,
+        id:     stanza.id(),
         stamp:  $delay_stanza.attr('stamp'),
         from:   $delay_stanza.attr('from'),
         reason: $delay_stanza.text()

@@ -4,7 +4,7 @@
 Frabjous.Parser = function(){
   // Private
   var _handlers = {};
-  
+
   return {
     // Class Methods
     handle: function(stanza){

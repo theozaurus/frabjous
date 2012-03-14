@@ -9,19 +9,16 @@ Frabjous.Message = DS.Model.extend({
   subject: DS.attr('string'),
 });
 
-Frabjous.Parser.register("Message", function($stanza){  
-  var message_stanza = $stanza.find("message");
+Frabjous.Parser.register("Message", function(stanza){
   
-  if( message_stanza.length > 0){
-    var $message_stanza = $(message_stanza);
+  if( stanza.is_message() ){
     var parsed = {};
-    
-    parsed.from    = $message_stanza.attr('from');
-    parsed.id      = $message_stanza.attr('id');
-    parsed.to      = $message_stanza.attr('to');
-    parsed.type    = $message_stanza.attr('type');
-    parsed.subject = $message_stanza.find('subject').text();
-    parsed.body    = $message_stanza.find('body').text();
+    parsed.id      = stanza.id();
+    parsed.from    = stanza.from();
+    parsed.to      = stanza.to();
+    parsed.type    = stanza.type();
+    parsed.subject = stanza.root().find('subject').text();
+    parsed.body    = stanza.root().find('body').text();
     parsed.frabjous_type = Frabjous.Message;
     
     return parsed;
