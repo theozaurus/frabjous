@@ -3,58 +3,51 @@
 //= require ember-data
 //= require ./message
 //= require ./presence
+//= require ./xep-0082
 
 Frabjous.Delay = DS.Model.extend({
-  stamp:  DS.attr('date'),
+  stamp:  DS.attr('Xep0082dateString'),
   from:   DS.attr('jidString'),
   reason: DS.attr('string')
 });
 
 Frabjous.Delay.instance_properties = {
   delay: DS.hasOne(Frabjous.Delay, { embedded: true }),
+  created_at: DS.attr('Xep0082dateString'),
   received_at: function(){
     var delay = this.get('delay');
     if(delay){
-      delay.get('stamp');
+      return delay.get('stamp');
     }else{
-      this.get('created_at');
+      return this.get('created_at');
     }
   }.property('delay','created_at')
 };
 
-Frabjous.Delay.class_properties = {
-  create: function(args){
-    args.created_at = new Date();
-    return this._super(args);
-  }
-};
-
 Frabjous.Message.reopen( Frabjous.Delay.instance_properties );
-Frabjous.Message.reopenClass( Frabjous.Delay.class_properties );
-
 Frabjous.Presence.reopen( Frabjous.Delay.instance_properties );
-Frabjous.Presence.reopenClass( Frabjous.Delay.class_properties );
 
 Frabjous.Parser.register("XEP-0203", function($stanza){
-  var delay_stanza = $stanza.find("delay[xmlns='urn:xmpp:delay']");
-  
-  if(delay_stanza.length > 0){
-    var id = $stanza.find('message').attr('id');
-    
-    var $delay_stanza = $(delay_stanza);
-    var delay = {
-      id:     id,
-      stamp:  $delay_stanza.attr('stamp'),
-      from:   $delay_stanza.attr('from'),
-      reason: $delay_stanza.text()
-    };
-    
+  var interesting_stanza = $stanza.find("message");
+  if(interesting_stanza.length > 0){
+    // At least have a message or presence, so add a created_at
+    var id = $(interesting_stanza).attr('id');
     parsed = {
-      id: $stanza.find('message').attr('id'),
-      delay: delay
+      id: id,
+      created_at: Frabjous.Xep0082.toString(new Date())
     };
     
+    var delay_stanza = $stanza.find("delay[xmlns='urn:xmpp:delay']");
+    if(delay_stanza.length > 0){
+      var $delay_stanza = $(delay_stanza);
+      var delay = {
+        id:     id,
+        stamp:  $delay_stanza.attr('stamp'),
+        from:   $delay_stanza.attr('from'),
+        reason: $delay_stanza.text()
+      };
+      parsed.delay = delay;
+    }
     return parsed;
   }
-
 });
