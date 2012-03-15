@@ -26,4 +26,6 @@ If you want to run the tests directly in the console just type:
     jasmine server started.
     Waiting for suite to finish in browser ...
     ..........................................
+    
+Or you can check the current status of master using [Travis](http://travis-ci.org/#!/theozaurus/frabjous)
 
