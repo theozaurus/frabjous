@@ -32,4 +32,5 @@ var createStanza = function(string){
 var parseStanza = function(string){
   var stanza = createStanza(string);
   Frabjous.Parser.handle(stanza);
+  return stanza;
 };

@@ -4,9 +4,10 @@ describe("XEP-0203", function() {
   var date;
   var reason;
   var from;
+  var id;
 
   var object_with_delay = function(){
-    var m = Frabjous.Store.findAll(type).get('lastObject');
+    var m = Frabjous.Store.find(type,id);
     var d = m.get('delay');
 
     expect(m.get('received_at')).toBeDate(date);
@@ -16,7 +17,7 @@ describe("XEP-0203", function() {
   };
 
   var object_without_delay = function(){
-    var m = Frabjous.Store.findAll(type).get('lastObject');
+    var m = Frabjous.Store.find(type,id);
     var d = m.get('delay');
 
     var now = new Date();
@@ -39,7 +40,8 @@ describe("XEP-0203", function() {
         reason = 'Offline Storage';
 
         var stanza = "<message type='chat' to='bob@bar.com' from='alice@bar.com'><body>hello there</body><delay xmlns='urn:xmpp:delay' from='capulet.com' stamp='2002-09-10T23:08:25+01:00'>Offline Storage</delay></message>";
-        parseStanza(stanza);
+        var s = parseStanza(stanza);
+        id = s.id();
       });
 
       it("should create a message object with delay", object_with_delay);
@@ -49,7 +51,8 @@ describe("XEP-0203", function() {
       beforeEach(function(){
         id = '14a';
         var stanza = "<message type='chat' to='bob@bar.com' from='alice@bar.com'><body>hello there</body></message>";
-        parseStanza(stanza);
+        var s = parseStanza(stanza);
+        id = s.id();
       });
 
       it("should create a presence object with no delay", object_without_delay);
@@ -69,7 +72,8 @@ describe("XEP-0203", function() {
         reason = '';
 
         var stanza = "<presence from='juliet@capulet.com/balcony' to='romeo@montague.net'><status>anon!</status><show>xa</show><priority>1</priority><delay xmlns='urn:xmpp:delay' from='juliet@capulet.com/balcony' stamp='2002-09-10T23:41:07Z'/></presence>";
-        parseStanza(stanza);
+        var s = parseStanza(stanza);
+        id = s.id();
       });
 
       it("should create a message object with delay", object_with_delay);
@@ -78,7 +82,8 @@ describe("XEP-0203", function() {
     describe("received without delay", function(){
       beforeEach(function(){
         var stanza = "<presence from='juliet@capulet.com/balcony' to='romeo@montague.net'><status>anon!</status><show>xa</show><priority>1</priority></presence>";
-        parseStanza(stanza);
+        var s = parseStanza(stanza);
+        id = s.id();
       });
 
       it("should create a presence object with no delay", object_without_delay);
