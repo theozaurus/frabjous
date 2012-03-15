@@ -2,12 +2,13 @@
 //= require ember-data
 
 Frabjous.Presence = DS.Model.extend({
-  from:    DS.attr('jidString'),
-  to:      DS.attr('jidString'),
-  type:    DS.attr('string'),
-  status:  DS.attr('string'),
-  show:    DS.attr('string'),
-  subject: DS.attr('string')
+  from:     DS.attr('jidString'),
+  to:       DS.attr('jidString'),
+  type:     DS.attr('string'),
+  status:   DS.attr('string'),
+  show:     DS.attr('string'),
+  subject:  DS.attr('string'),
+  priority: DS.attr('number')
 });
 
 Frabjous.Parser.register("Presence", function(stanza){
