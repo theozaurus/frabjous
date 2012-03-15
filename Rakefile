@@ -6,6 +6,8 @@ require "jasmine-sprockets"
 
 load 'jasmine/tasks/jasmine.rake'
 
+task :default => "jasmine:ci"
+
 task :build do
   require "sprockets"
   environment = Sprockets::Environment.new
