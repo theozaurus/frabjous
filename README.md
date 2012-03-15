@@ -1,4 +1,4 @@
-Frabjous
+Frabjous [![Build status](https://secure.travis-ci.org/theozaurus/frabjous.png)](http://travis-ci.org/theozaurus/frabjous)
 ========
 
 Frabjous aims to provide a layer of abstraction for Javascript that deals with managing an XMPP connection. It is designed to create and parse XMPP stanzas to turn them into objects like Messages, Users, MUC rooms, Pubsub Nodes. This is so programmers can get on with writing apps on top of these constructs, rather than getting bogged down in XML. [Ember](http://emberjs.com) is used to create this interface.
