@@ -24,15 +24,23 @@ Frabjous.Delay.instance_properties = {
   }.property('delay','created_at')
 };
 
+Frabjous.Delay.sort = function(a,b){
+  return a.get("received_at") - b.get("received_at");
+};
+
 Frabjous.Message.reopen( Frabjous.Delay.instance_properties );
 Frabjous.Presence.reopen( Frabjous.Delay.instance_properties );
 
 Frabjous.Contact.reopen({
   presence_history: function(){
-    return this.get('_presence_history').slice().sort(function(a,b){
-      return a.get("received_at") - b.get("received_at");
-    });
+    return this.get('_presence_history').slice().sort(Frabjous.Delay.sort);
   }.property('_presence_history')
+});
+
+Frabjous.Contact.reopen({
+  messages: function(){
+    return this.get('_messages').slice().sort(Frabjous.Delay.sort);
+  }.property('_messages')
 });
 
 Frabjous.Parser.register("XEP-0203", function(stanza){

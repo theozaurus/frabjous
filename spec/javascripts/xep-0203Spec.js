@@ -61,6 +61,19 @@ describe("XEP-0203", function() {
 
       it("should create a presence object with no delay", object_without_delay);
     });
+    
+    it("when received out of order, the messages for a contact should be in the correct order", function(){
+      var s1 = parseStanza("<message from='romeo@montague.net/orchard' to='juliet@im.example.com'><body>Neither, fair saint, if either thee dislike.</body></message>");
+      var m1 = Frabjous.Store.find(type, s1.id());
+      
+      var s2 = parseStanza("<message from='romeo@montague.net/orchard' to='juliet@capulet.com'><body>O blessed, blessed night! I am afeard. Being in night, all this is but a dream, Too flattering-sweet to be substantial.</body><delay xmlns='urn:xmpp:delay' from='capulet.com' stamp='2002-09-10T23:08:25Z'>Offline Storage</delay></message>");
+           
+      var m2 = Frabjous.Store.find(type, s2.id());
+      
+      var c = Frabjous.Store.find(Frabjous.Contact,'romeo@montague.net/orchard');
+      
+      expect(c.get('messages')).toEqualModelArray([m2,m1]); // opposite order they were recieved in
+    });
   });
 
   describe("when presence", function(){
@@ -93,7 +106,7 @@ describe("XEP-0203", function() {
       it("should create a presence object with no delay", object_without_delay);
     });
     
-    it("when messages are received out of order, the presence_history for a contact should be in the correct order", function(){
+    it("when received out of order, the presence_history for a contact should be in the correct order", function(){
       var s1 = parseStanza("<presence from='juliet@capulet.com/balcony' to='romeo@montague.net'><status>Sleeping</status><show>dnd</show><priority>1</priority></presence>");
       var p1 = Frabjous.Store.find(Frabjous.Presence, s1.id());
       

@@ -1,5 +1,6 @@
 //= require ember-data
 //= require jquery
+//= require ./contact
 
 Frabjous.Message = DS.Model.extend({
   from:          DS.attr('jidString'),
@@ -8,7 +9,32 @@ Frabjous.Message = DS.Model.extend({
   body:          DS.attr('string'),
   subject:       DS.attr('string'),
   thread:        DS.attr('string'),
-  parent_thread: DS.attr('string')
+  parent_thread: DS.attr('string'),
+  contact:       DS.belongsTo('Frabjous.Contact'),
+  didLoad: function(){
+    var contact;
+    var type              = Frabjous.Contact;
+    var contact_id        = this.get('from').toString();
+    var contact_client_id = Frabjous.Store.clientIdForId(type, contact_id);
+    
+    if( Ember.none(contact_client_id) ){
+      // No contact exists, so create one
+      Frabjous.Store.load(type,{jid: this.get('from'), _messages:[this.get('id')]});
+      contact = Frabjous.Store.find(type,contact_id);
+    }else{
+      // Update contact
+      contact = Frabjous.Store.find(type,contact_id);
+      contact.get('_messages').addObject(this);
+    }
+    
+    this.set('contact',contact);
+  }
+});
+
+Frabjous.Contact.reopen({
+  // Allows me to override the ordering in XEP-0203, I don't like this method
+  _messages: DS.hasMany('Frabjous.Message'),
+  messages: function(){ return this.get('_messages'); }.property('_messages')
 });
 
 Frabjous.Parser.register("Message", function(stanza){
