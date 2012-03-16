@@ -1,5 +1,6 @@
 //= require ember
 //= require ember-data
+//= require ./contact
 
 Frabjous.Presence = DS.Model.extend({
   from:      DS.attr('jidString'),
@@ -33,6 +34,7 @@ Frabjous.Presence = DS.Model.extend({
 Frabjous.Contact.reopen({
   // Allows me to override the ordering in XEP-0203, I don't like this method
   _presence_history: DS.hasMany('Frabjous.Presence'),
+  presence_history: function(){ return this.get('_presence_history'); }.property('_presence_history'),
   presence: function(){
     return this.get('presence_history').get('lastObject');
   }.property('presence_history')
