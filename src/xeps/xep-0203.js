@@ -39,8 +39,8 @@ Frabjous.Contact.reopen({
 
 Frabjous.Contact.reopen({
   messages: function(){
-    return this.get('_messages').slice().sort(Frabjous.Delay.sort);
-  }.property('_messages')
+    return this.get('_messages_sent').slice().sort(Frabjous.Delay.sort);
+  }.property('_messages_sent')
 });
 
 Frabjous.Parser.register("XEP-0203", function(stanza){

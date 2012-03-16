@@ -19,12 +19,12 @@ Frabjous.Message = DS.Model.extend({
     
     if( Ember.none(contact_client_id) ){
       // No contact exists, so create one
-      Frabjous.Store.load(type,{jid: this.get('from'), _messages:[this.get('id')]});
+      Frabjous.Store.load(type,{jid: this.get('from'), _messages_sent:[this.get('id')]});
       contact = Frabjous.Store.find(type,contact_id);
     }else{
       // Update contact
       contact = Frabjous.Store.find(type,contact_id);
-      contact.get('_messages').addObject(this);
+      contact.get('_messages_sent').addObject(this);
     }
     
     this.set('contact',contact);
@@ -33,8 +33,8 @@ Frabjous.Message = DS.Model.extend({
 
 Frabjous.Contact.reopen({
   // Allows me to override the ordering in XEP-0203, I don't like this method
-  _messages: DS.hasMany('Frabjous.Message'),
-  messages: function(){ return this.get('_messages'); }.property('_messages')
+  _messages_sent: DS.hasMany('Frabjous.Message'),
+  messages_sent: function(){ return this.get('_messages_sent'); }.property('_messages_sent')
 });
 
 Frabjous.Parser.register("Message", function(stanza){

@@ -49,7 +49,7 @@ describe("Message", function() {
       expect(m).not.toBeDirty();
       expect(m.get('contact')).toEqualModel(c);
       expect(c).not.toBeDirty();
-      expect(c.get('messages')).toEqualModelArray([m]);
+      expect(c.get('messages_sent')).toEqualModelArray([m]);
     });
     
     it("should build has many to contact", function(){
@@ -63,7 +63,7 @@ describe("Message", function() {
       
       expect(m1.get('contact')).toEqualModel(c);
       expect(m2.get('contact')).toEqualModel(c);
-      expect(c.get('messages')).toEqualModelArray([m1,m2]);
+      expect(c.get('messages_sent')).toEqualModelArray([m1,m2]);
     });
     
   });
