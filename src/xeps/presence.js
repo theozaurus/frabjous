@@ -13,17 +13,17 @@ Frabjous.Presence = DS.Model.extend({
   contact:   DS.belongsTo('Frabjous.Contact'),
   didLoad: function(){
     var contact;
-    var type              = Frabjous.Contact;
-    var contact_id        = this.get('from').toString();
-    var contact_client_id = Frabjous.Store.clientIdForId(type, contact_id);
+    var type      = Frabjous.Contact;
+    var id        = this.get('from').toString();
+    var client_id = Frabjous.Store.clientIdForId(type, id);
     
-    if( Ember.none(contact_client_id) ){
+    if( Ember.none(client_id) ){
       // No contact exists, so create one
-      Frabjous.Store.load(type,{jid: this.get('from'), _presence_history:[this.get('id')]});
-      contact = Frabjous.Store.find(type,contact_id);
+      Frabjous.Store.load(type,{jid: id, _presence_history:[this.get('id')]});
+      contact = Frabjous.Store.find(type,id);
     }else{
       // Update contact
-      contact = Frabjous.Store.find(type,contact_id);
+      contact = Frabjous.Store.find(type,id);
       contact.get('_presence_history').addObject(this);
     }
     
