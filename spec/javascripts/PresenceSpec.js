@@ -1,5 +1,7 @@
 describe("Presence", function() {
 
+  var klass = Frabjous.Presence;
+
   beforeEach(function() {
     Frabjous.Store.init();
   });
@@ -8,7 +10,7 @@ describe("Presence", function() {
     it("should create a presence object", function(){
       var s = parseStanza("<presence from='romeo@example.net/orchard' to='mercutio@example.org'><show>away</show><status>I shall return!</status><priority>1</priority></presence>");
       
-      var m = Frabjous.Store.find(Frabjous.Presence,s.id());
+      var m = Frabjous.Store.find(klass,s.id());
       expect(m.get('status')).toEqual('I shall return!');
       expect(m.get('show')).toEqual('away');
       expect(m.get('from')).toBeJid('romeo@example.net/orchard');
@@ -19,7 +21,7 @@ describe("Presence", function() {
     it("should link to a contact", function(){
       var s = parseStanza("<presence from='romeo@example.net/orchard' to='mercutio@example.org'><show>away</show><status>I shall return!</status><priority>1</priority></presence>");
       
-      var p = Frabjous.Store.find(Frabjous.Presence, s.id());
+      var p = Frabjous.Store.find(klass, s.id());
       var c = Frabjous.Store.find(Frabjous.Contact,'romeo@example.net/orchard');
       
       expect(p).not.toBeDirty();
@@ -30,10 +32,10 @@ describe("Presence", function() {
     
     it("should build has many to contact", function(){
       var s1 = parseStanza("<presence from='romeo@example.net/orchard' to='mercutio@example.org'><show>away</show><status>I shall return!</status><priority>1</priority></presence>");
-      var p1 = Frabjous.Store.find(Frabjous.Presence, s1.id());
+      var p1 = Frabjous.Store.find(klass, s1.id());
       
       var s2 = parseStanza("<presence from='romeo@example.net/orchard' to='mercutio@example.org'><show>away</show><status>I shall return!</status><priority>1</priority></presence>");
-      var p2 = Frabjous.Store.find(Frabjous.Presence, s2.id());
+      var p2 = Frabjous.Store.find(klass, s2.id());
       
       var c = Frabjous.Store.find(Frabjous.Contact,'romeo@example.net/orchard');
       
@@ -44,14 +46,14 @@ describe("Presence", function() {
     
     it("should update the contacts presence attribute to be the last one", function(){
       var s1 = parseStanza("<presence from='romeo@example.net/orchard' to='mercutio@example.org'><show>away</show><status>I shall return!</status><priority>1</priority></presence>");
-      var p1 = Frabjous.Store.find(Frabjous.Presence, s1.id());
+      var p1 = Frabjous.Store.find(klass, s1.id());
       
       var c = Frabjous.Store.find(Frabjous.Contact,'romeo@example.net/orchard');
       
       expect(c.get('presence')).toEqualModel(p1);
       
       var s2 = parseStanza("<presence from='romeo@example.net/orchard' to='mercutio@example.org'><show>away</show><status>I shall return!</status><priority>1</priority></presence>");
-      var p2 = Frabjous.Store.find(Frabjous.Presence, s2.id());
+      var p2 = Frabjous.Store.find(klass, s2.id());
       
       expect(c.get('presence')).toEqualModel(p2);
     });
