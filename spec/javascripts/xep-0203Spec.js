@@ -26,6 +26,10 @@ describe("XEP-0203", function() {
     expect(m.get('received_at')).toBeDate(created_at);
     expect(m.get('delay')).toBeNull();
   };
+  
+  beforeEach(function() {
+    Frabjous.Store.init();
+  });
 
   describe("when message", function(){
     beforeEach(function(){
@@ -87,6 +91,19 @@ describe("XEP-0203", function() {
       });
 
       it("should create a presence object with no delay", object_without_delay);
+    });
+    
+    it("when messages are received out of order, the presence_history for a contact should be in the correct order", function(){
+      var s1 = parseStanza("<presence from='juliet@capulet.com/balcony' to='romeo@montague.net'><status>Sleeping</status><show>dnd</show><priority>1</priority></presence>");
+      var p1 = Frabjous.Store.find(Frabjous.Presence, s1.id());
+      
+      var s2 = parseStanza("<presence from='juliet@capulet.com/balcony' to='romeo@montague.net'><status>anon!</status><show>xa</show><priority>1</priority><delay xmlns='urn:xmpp:delay' from='juliet@capulet.com/balcony' stamp='2002-09-10T23:41:07Z'/></presence>");
+      var p2 = Frabjous.Store.find(Frabjous.Presence, s2.id());
+      
+      var c = Frabjous.Store.find(Frabjous.Contact,'juliet@capulet.com/balcony');
+      
+      expect(c.get('presence_history')).toEqualModelArray([p2,p1]); // opposite order they were recieved in
+      expect(c.get('presence')).toEqualModel(p1);
     });
   });
 

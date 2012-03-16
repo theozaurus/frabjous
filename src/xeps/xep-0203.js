@@ -27,6 +27,14 @@ Frabjous.Delay.instance_properties = {
 Frabjous.Message.reopen( Frabjous.Delay.instance_properties );
 Frabjous.Presence.reopen( Frabjous.Delay.instance_properties );
 
+Frabjous.Contact.reopen({
+  presence_history: function(){
+    return this.get('_presence_history').slice().sort(function(a,b){
+      return a.get("received_at") - b.get("received_at");
+    });
+  }.property('_presence_history')
+});
+
 Frabjous.Parser.register("XEP-0203", function(stanza){
   if( stanza.is_message() || stanza.is_presence() ){
     // At least have a message or presence, so add a created_at

@@ -21,6 +21,27 @@ beforeEach(function() {
     },
     toBeFalse: function(expected){
       return this.actual === false;
+    },
+    toEqualModel: function(expected){
+      this.message = function(){
+        if(this.actual.constructor != expected.constructor ){
+          return "Expected " + this.actual.constructor + " type to equal " + expected.constructor;
+        }
+        return "Expected " + this.actual.get('id').toString() + " to be " + expected.get('id').toString();
+      };
+      return this.actual.toString() == expected.toString();
+    },
+    toEqualModelArray: function(expected){
+      var mapping = function(e){ return e.get('clientId'); };
+      var expected_client_ids = $.map(expected, mapping);
+      var actual_client_ids = this.actual.slice().map(mapping);
+      this.message = function(){
+        return "Expected " + actual_client_ids + " clientId's to be " + expected_client_ids;
+      };
+      return this.env.equals_(actual_client_ids, expected_client_ids);
+    },
+    toBeDirty: function(){
+      return this.actual.isDirty;
     }
   });
 });
