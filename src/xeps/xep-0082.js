@@ -25,7 +25,7 @@ Frabjous.Xep0082 = {
     
     var datetime = function(d){
       // If any hours, minutes, seconds and milliseconds do not equal 0 we are dealing with a datetime
-      return d.getUTCHours() !== 0 || d.getUTCMinutes() !== 0 || d.getUTCSeconds() !== 0 || d.getUTCMilliseconds() !== 0;
+      return d.getUTCHours() !== 0 || d.getUTCMinutes() !== 0 || d.getUTCSeconds() !== 0 || datetimems(d);
     };
     
     var datetimems = function(d){
