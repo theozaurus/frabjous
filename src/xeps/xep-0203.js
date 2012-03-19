@@ -65,7 +65,7 @@ Frabjous.Parser.register("XEP-0203", function(stanza){
         id:     stanza.id(),
         stamp:  $delay_stanza.attr('stamp'),
         from:   $delay_stanza.attr('from'),
-        reason: $delay_stanza.text()
+        reason: $.trim($delay_stanza.text())
       };
       parsed.delay = delay;
     }

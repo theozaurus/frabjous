@@ -48,10 +48,10 @@ Frabjous.Parser.register("Message", function(stanza){
     parsed.from    = stanza.from();
     parsed.to      = stanza.to();
     parsed.type    = stanza.type() || "normal";
-    parsed.subject = stanza.root().find('subject').text();
-    parsed.body    = stanza.root().find('body').text();
+    parsed.subject = $.trim(stanza.root().find('subject').text());
+    parsed.body    = $.trim(stanza.root().find('body').text());
     
-    parsed.thread_id        = stanza.root().find('thread').text();
+    parsed.thread_id        = $.trim(stanza.root().find('thread').text());
     parsed.parent_thread_id = stanza.root().find('thread').attr('parent');
     
     parsed.frabjous_type = Frabjous.Message;

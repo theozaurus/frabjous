@@ -48,9 +48,9 @@ Frabjous.Parser.register("Presence", function(stanza){
     parsed.from     = stanza.from();
     parsed.to       = stanza.to();
     parsed.type     = stanza.type();
-    parsed.show     = stanza.root().find('show').text();
-    parsed.status   = stanza.root().find('status').text();
-    parsed.priority = parseInt(stanza.root().find('priority').text(),10) || 0;
+    parsed.show     = $.trim(stanza.root().find('show').text());
+    parsed.status   = $.trim(stanza.root().find('status').text());
+    parsed.priority = parseInt($.trim(stanza.root().find('priority').text()),10) || 0;
     parsed.frabjous_type = Frabjous.Presence;    
     return parsed;
   }
