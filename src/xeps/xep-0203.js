@@ -40,8 +40,8 @@ Frabjous.Contact.reopen({
 
 Frabjous.Contact.reopen({
   messages: function(){
-    return this.get('_messages_sent').slice().sort(Frabjous.Delay.sort);
-  }.property('_messages_sent')
+    return this.get('_messages_from').slice().sort(Frabjous.Delay.sort);
+  }.property('_messages_from')
 });
 
 Frabjous.Thread.reopen({
