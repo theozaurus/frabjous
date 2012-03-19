@@ -14,6 +14,7 @@ describe("XEP-0201",function(){
       var t = Frabjous.Store.find(klass, 'sadfasdf');
       expect(m.get('thread')).toEqualModel(t);
       expect(t.get('messages')).toEqualModelArray([m]);
+      expect(t.get('hasParent')).toBeFalse();
     });
     
     it("should link to a parent_thread if present", function(){
@@ -26,9 +27,11 @@ describe("XEP-0201",function(){
       expect(m.get('parent_thread')).toEqualModel(p);
       
       expect(t.get('messages')).toEqualModelArray([m]);
+      expect(t.get('hasParent')).toBeTrue();
       
       expect(p.get('messages')).toEqualModelArray([]);
       expect(p.get('child_threads')).toEqualModelArray([t]);
+      expect(p.get('hasParent')).toBeFalse();
     });
   });
   
