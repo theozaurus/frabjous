@@ -29,15 +29,15 @@ describe("Message", function() {
       var s = parseStanza("<message to='bob@bar.com' from='alice@bar.com'><body>hello there</body><thread>123</thread></message>");
       
       var m = Frabjous.Store.find(klass, s.id());
-      expect(m.get('thread')).toEqual('123');
+      expect(m.get('thread_id')).toEqual('123');
     });
     
     it("should record parent thread information", function(){
       var s = parseStanza("<message to='bob@bar.com' from='alice@bar.com'><body>hello there</body><thread parent='ABC'>123</thread></message>");
       
       var m = Frabjous.Store.find(klass, s.id());
-      expect(m.get('thread')).toEqual('123');
-      expect(m.get('parent_thread')).toEqual('ABC');
+      expect(m.get('thread_id')).toEqual('123');
+      expect(m.get('parent_thread_id')).toEqual('ABC');
     });
     
     it("should link to a contact", function(){

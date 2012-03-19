@@ -4,6 +4,7 @@
 //= require ./message
 //= require ./presence
 //= require ./xep-0082
+//= require ./xep-0201
 
 Frabjous.Delay = DS.Model.extend({
   stamp:  DS.attr('Xep0082dateString'),
@@ -41,6 +42,12 @@ Frabjous.Contact.reopen({
   messages: function(){
     return this.get('_messages_sent').slice().sort(Frabjous.Delay.sort);
   }.property('_messages_sent')
+});
+
+Frabjous.Thread.reopen({
+  messages: function(){
+    return this.get('_messages').slice().sort(Frabjous.Delay.sort);
+  }.property('messages')
 });
 
 Frabjous.Parser.register("XEP-0203", function(stanza){

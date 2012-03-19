@@ -74,6 +74,18 @@ describe("XEP-0203", function() {
       
       expect(c.get('messages')).toEqualModelArray([m2,m1]); // opposite order they were recieved in
     });
+    
+    it("when received out of order, the messages for a thread should be in the correct order", function(){
+      var s1 = parseStanza("<message from='romeo@montague.net/orchard' to='juliet@capulet.com'><body>And what love can do that dares love attempt; Therefore thy kinsmen are no let to me.</body><thread>1345345</thread></message>");
+      var m1 = Frabjous.Store.find(type, s1.id());
+      
+      var s2 = parseStanza("<message from='romeo@montague.net/orchard' to='juliet@im.example.com'><body>With love's light wings did I o'er-perch these walls;For stony limits cannot hold love out,</body><thread>1345345</thread><delay xmlns='urn:xmpp:delay' from='capulet.com' stamp='2002-09-10T23:08:25Z'>Offline Storage</delay></message>");
+      var m2 = Frabjous.Store.find(type, s2.id());
+      
+      var t = Frabjous.Store.find(Frabjous.Thread,'1345345');
+      
+      expect(t.get('messages')).toEqualModelArray([m2,m1]); // opposite order they were recieved in
+    });
   });
 
   describe("when presence", function(){
