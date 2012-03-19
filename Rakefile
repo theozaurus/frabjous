@@ -8,6 +8,7 @@ load 'jasmine/tasks/jasmine.rake'
 
 task :default => "jasmine:ci"
 
+desc "Build frabjous (including dependencies)"
 task :build do
   require "sprockets"
   environment = Sprockets::Environment.new
