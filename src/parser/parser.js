@@ -23,8 +23,7 @@ Frabjous.Parser = function(){
           var item = items[i];
           var frabjous_type = item.frabjous_type;
           delete item.frabjous_type;
-          
-          Frabjous.Store.load(frabjous_type,item);
+          Frabjous.Store.load_and_find(frabjous_type,item);
         }
       }
       

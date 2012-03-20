@@ -19,7 +19,7 @@ Frabjous.Presence = DS.Model.extend({
     
     if( Ember.none(client_id) ){
       // No contact exists, so create one
-      Frabjous.Store.load(type,{jid: id, _presence_history:[this.get('id')]});
+      Frabjous.Store.load_and_find(type,{jid: id, _presence_history:[this.get('id')]});
       contact = Frabjous.Store.find(type,id);
     }else{
       // Update contact
