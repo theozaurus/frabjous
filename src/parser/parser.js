@@ -8,6 +8,7 @@ Frabjous.Parser = function(){
   return {
     // Class Methods
     handle: function(stanza){
+      Frabjous.log.debug("Received:", stanza.toString());
       var itemsList = new Frabjous.ParsedItems();
       
       for(var h in _handlers){
@@ -23,6 +24,7 @@ Frabjous.Parser = function(){
           var item = items[i];
           var frabjous_type = item.frabjous_type;
           delete item.frabjous_type;
+          Frabjous.log.debug("Parsed "+frabjous_type+":",item);
           Frabjous.Store.load_and_find(frabjous_type,item);
         }
       }

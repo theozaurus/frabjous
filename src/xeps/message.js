@@ -19,10 +19,12 @@ Frabjous.Message = DS.Model.extend({
     
     if( Ember.none(client_id) ){
       // No contact exists, so create one
+      Frabjous.log.debug("Creating Frabjous.Contact " + id);
       Frabjous.Store.load_and_find(type,{jid: id, _messages_from:[this.get('id')]});
       contact = Frabjous.Store.find(type,id);
     }else{
       // Update contact
+      Frabjous.log.debug("Updating Frabjous.Contact " + id);
       contact = Frabjous.Store.find(type,id);
       contact.get('_messages_from').addObject(this);
     }

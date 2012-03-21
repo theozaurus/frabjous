@@ -15,6 +15,7 @@ Frabjous.Stanza = (function(){
   
   // Return the constructor  
   return function(stanza){
+    
     // Private attributes
     var $stanza = $(coerse_to_document_object(stanza));
     
@@ -29,7 +30,10 @@ Frabjous.Stanza = (function(){
         return result;
       };
     };
-        
+    
+    // Public attributes
+    this.raw = stanza;
+    
     // Privileged methods
     // this.root 
     memoize('root', function(){
@@ -73,5 +77,8 @@ Frabjous.Stanza = (function(){
       return $stanza.find("iq").length > 0;
     });
     
+    this.toString = function(){
+      return this.raw;
+    };
   };
 })();
