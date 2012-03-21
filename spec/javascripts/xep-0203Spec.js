@@ -63,16 +63,18 @@ describe("XEP-0203", function() {
     });
     
     it("when received out of order, the messages for a contact should be in the correct order", function(){
-      var s1 = parseStanza("<message from='romeo@montague.net/orchard' to='juliet@im.example.com'><body>Neither, fair saint, if either thee dislike.</body></message>");
+      var s1 = parseStanza("<message from='romeo@montague.net/orchard' to='juliet@capulet.com'><body>Neither, fair saint, if either thee dislike.</body></message>");
       var m1 = Frabjous.Store.find(type, s1.id());
       
       var s2 = parseStanza("<message from='romeo@montague.net/orchard' to='juliet@capulet.com'><body>O blessed, blessed night! I am afeard. Being in night, all this is but a dream, Too flattering-sweet to be substantial.</body><delay xmlns='urn:xmpp:delay' from='capulet.com' stamp='2002-09-10T23:08:25Z'>Offline Storage</delay></message>");
            
       var m2 = Frabjous.Store.find(type, s2.id());
       
-      var c = Frabjous.Store.find(Frabjous.Contact,'romeo@montague.net/orchard');
+      var c1 = Frabjous.Store.find(Frabjous.Contact,'romeo@montague.net/orchard');
+      var c2 = Frabjous.Store.find(Frabjous.Contact,'juliet@capulet.com');
       
-      expect(c.get('messages')).toEqualModelArray([m2,m1]); // opposite order they were recieved in
+      expect(c1.get('messages_from')).toEqualModelArray([m2,m1]); // opposite order they were recieved in
+      expect(c2.get('messages_to')).toEqualModelArray([m2,m1]); // opposite order they were recieved in
     });
     
     it("when received out of order, the messages for a thread should be in the correct order", function(){

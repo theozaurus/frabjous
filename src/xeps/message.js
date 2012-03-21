@@ -10,36 +10,44 @@ Frabjous.Message = DS.Model.extend({
   subject:          DS.attr('string'),
   thread_id:        DS.attr('string'),
   parent_thread_id: DS.attr('string'),
-  contact:          DS.belongsTo('Frabjous.Contact'),
-  _load_contact: function(){
+  contact_to:       DS.belongsTo('Frabjous.Contact'),
+  contact_from:     DS.belongsTo('Frabjous.Contact'),
+  _load_contact: function(field){
     var contact;
-    var type      = Frabjous.Contact;
-    var id        = this.get('from').toString();
-    var client_id = Frabjous.Store.clientIdForId(type, id);
+    var id             = this.get(field).toString();
+    var type           = Frabjous.Contact;
+    var client_id      = Frabjous.Store.clientIdForId(type, id);
+    var messages_field = '_messages_' + field;
+    var local_field    = 'contact_' + field;
     
     if( Ember.none(client_id) ){
       // No contact exists, so create one
       Frabjous.log.debug("Creating Frabjous.Contact " + id);
-      Frabjous.Store.load_and_find(type,{jid: id, _messages_from:[this.get('id')]});
+      var hash = {jid: id};
+      hash[messages_field] = [this.get('id')];
+      Frabjous.Store.load_and_find(type,hash);
       contact = Frabjous.Store.find(type,id);
     }else{
       // Update contact
       Frabjous.log.debug("Updating Frabjous.Contact " + id);
       contact = Frabjous.Store.find(type,id);
-      contact.get('_messages_from').addObject(this);
+      contact.get(messages_field).addObject(this);
     }
     
-    this.set('contact',contact);
+    this.set(local_field,contact);
   },
   didLoad: function(){
-    this._load_contact();
+    this._load_contact('from');
+    this._load_contact('to');
   }
 });
 
 Frabjous.Contact.reopen({
   // Allows me to override the ordering in XEP-0203, I don't like this method
   _messages_from: DS.hasMany('Frabjous.Message'),
-  messages_from: function(){ return this.get('_messages_from'); }.property('_messages_from.@each')
+  messages_from: function(){ return this.get('_messages_from'); }.property('_messages_from.@each'),
+  _messages_to: DS.hasMany('Frabjous.Message'),
+  messages_to: function(){ return this.get('_messages_to'); }.property('_messages_to.@each')
 });
 
 Frabjous.Parser.register("Message", function(stanza){

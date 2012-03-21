@@ -40,16 +40,28 @@ describe("Message", function() {
       expect(m.get('parent_thread_id')).toEqual('ABC');
     });
     
-    it("should link to a contact", function(){
+    it("should link to a from_contact", function(){
       var s = parseStanza("<message from='juliet@example.com/balcony' to='romeo@example.net' type='chat'><body>My ears have not yet drunk a hundred words</body></message>");
       
       var m = Frabjous.Store.find(klass, s.id());
       var c = Frabjous.Store.find(Frabjous.Contact,'juliet@example.com/balcony');
       
       expect(m).not.toBeDirty();
-      expect(m.get('contact')).toEqualModel(c);
+      expect(m.get('contact_from')).toEqualModel(c);
       expect(c).not.toBeDirty();
       expect(c.get('messages_from')).toEqualModelArray([m]);
+    });
+    
+    it("should link to a to_contact", function(){
+      var s = parseStanza("<message from='juliet@example.com/balcony' to='romeo@example.net' type='chat'><body>My ears have not yet drunk a hundred words</body></message>");
+      
+      var m = Frabjous.Store.find(klass, s.id());
+      var c = Frabjous.Store.find(Frabjous.Contact,'romeo@example.net');
+      
+      expect(m).not.toBeDirty();
+      expect(m.get('contact_to')).toEqualModel(c);
+      expect(c).not.toBeDirty();
+      expect(c.get('messages_to')).toEqualModelArray([m]);
     });
     
     it("should build has many to contact", function(){
@@ -59,11 +71,16 @@ describe("Message", function() {
       var s2 = parseStanza("<message from='juliet@example.com/balcony' to='romeo@example.net' type='chat'><body>Art thou not Romeo, and a Montague?</body></message>");
       var m2 = Frabjous.Store.find(klass, s2.id());
       
-      var c = Frabjous.Store.find(Frabjous.Contact,'juliet@example.com/balcony');
-      
-      expect(m1.get('contact')).toEqualModel(c);
-      expect(m2.get('contact')).toEqualModel(c);
-      expect(c.get('messages_from')).toEqualModelArray([m1,m2]);
+      var c1 = Frabjous.Store.find(Frabjous.Contact,'juliet@example.com/balcony');
+      var c2 = Frabjous.Store.find(Frabjous.Contact,'romeo@example.net');
+
+      expect(m1.get('contact_from')).toEqualModel(c1);
+      expect(m2.get('contact_from')).toEqualModel(c1);
+      expect(c1.get('messages_from')).toEqualModelArray([m1,m2]);
+
+      expect(m1.get('contact_to')).toEqualModel(c2);
+      expect(m2.get('contact_to')).toEqualModel(c2);
+      expect(c2.get('messages_to')).toEqualModelArray([m1,m2]);
     });
     
   });

@@ -39,9 +39,12 @@ Frabjous.Contact.reopen({
 });
 
 Frabjous.Contact.reopen({
-  messages: function(){
+  messages_from: function(){
     return this.get('_messages_from').slice().sort(Frabjous.Delay.sort);
-  }.property('_messages_from.@each')
+  }.property('_messages_from.@each'),
+  messages_to: function(){
+    return this.get('_messages_to').slice().sort(Frabjous.Delay.sort);
+  }.property('_messages_to.@each')
 });
 
 Frabjous.Thread.reopen({
