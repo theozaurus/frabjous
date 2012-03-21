@@ -39,7 +39,7 @@ Frabjous.Message = DS.Model.extend({
 Frabjous.Contact.reopen({
   // Allows me to override the ordering in XEP-0203, I don't like this method
   _messages_from: DS.hasMany('Frabjous.Message'),
-  messages_from: function(){ return this.get('_messages_from'); }.property('_messages_from')
+  messages_from: function(){ return this.get('_messages_from'); }.property('_messages_from.@each')
 });
 
 Frabjous.Parser.register("Message", function(stanza){

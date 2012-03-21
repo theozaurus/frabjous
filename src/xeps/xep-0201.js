@@ -4,7 +4,7 @@ Frabjous.Thread = DS.Model.extend({
   parent_id:        DS.attr('string'),
   child_threads:    DS.hasMany('Frabjous.Thread'),
   _messages:        DS.hasMany('Frabjous.Message'),
-  messages:         function(){ return this.get('_messages'); }.property('_messages'),
+  messages:         function(){ return this.get('_messages'); }.property('_messages.@each'),
   hasParent:        function(){ return !Ember.none(this.get('parent_id'));}.property('parent_id')
 });
 

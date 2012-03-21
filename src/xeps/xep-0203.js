@@ -35,19 +35,19 @@ Frabjous.Presence.reopen( Frabjous.Delay.instance_properties );
 Frabjous.Contact.reopen({
   presence_history: function(){
     return this.get('_presence_history').slice().sort(Frabjous.Delay.sort);
-  }.property('_presence_history')
+  }.property('_presence_history.@each')
 });
 
 Frabjous.Contact.reopen({
   messages: function(){
     return this.get('_messages_from').slice().sort(Frabjous.Delay.sort);
-  }.property('_messages_from')
+  }.property('_messages_from.@each')
 });
 
 Frabjous.Thread.reopen({
   messages: function(){
     return this.get('_messages').slice().sort(Frabjous.Delay.sort);
-  }.property('messages')
+  }.property('_messages.@each')
 });
 
 Frabjous.Parser.register("XEP-0203", function(stanza){
