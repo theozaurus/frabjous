@@ -7,5 +7,6 @@
 //= require_tree ./primitives
 //= require_tree ./storage
 //= require_tree ./xeps
+//= require_tree ./callbacks
 
 Frabjous = {};

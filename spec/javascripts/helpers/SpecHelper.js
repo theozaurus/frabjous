@@ -42,6 +42,53 @@ beforeEach(function() {
     },
     toBeDirty: function(){
       return this.actual.isDirty;
+    },
+    toIncludeCallback: function(expected){ 
+      var make_bare = function(e){
+        return {
+          completed: e.completed,
+          success:   e.success,
+          error:     e.error
+        };
+      };
+      
+      var bare_actuals = $.map(this.actual,function(e){
+        return make_bare(e);
+      });
+      var bare_expected = make_bare(expected);
+      
+      var that = this;
+      var any = false;      
+      $.each(bare_actuals,function(i,e){
+        any = that.env.equals_(e,bare_expected);
+        return !any; // Will break when any is true
+      });
+      
+      return any;
+    },
+    toIncludeCallbacks: function(expected){
+      var make_bare = function(e){
+        return {
+          completed: e.completed,
+          success:   e.success,
+          error:     e.error
+        };
+      };
+      
+      var bare_actuals  = $.map(this.actual,function(e){ return make_bare(e); });
+      var bare_expected = $.map(expected,function(e){ return make_bare(e); });
+      
+      var that = this;
+      var test = function(expected){
+        var any = false;      
+        $.each(bare_actuals,function(i,e){
+          any = that.env.equals_(e,expected);
+          return !any; // Will break when any is true
+        });
+        return any;
+      };
+      
+      return bare_expected.every(function(e){ return test(e); });
     }
   });
 });
