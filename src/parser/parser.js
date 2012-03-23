@@ -19,16 +19,18 @@ Frabjous.Parser = function(){
       }
       
       var items = itemsList.all();
+      var first_result;
       for(var i in items){
         if(items.hasOwnProperty(i)){
           var item = items[i];
           var frabjous_type = item.frabjous_type;
           delete item.frabjous_type;
           Frabjous.log.debug("Parsed "+frabjous_type+":",item);
-          Frabjous.Store.load_and_find(frabjous_type,item);
+          var result = Frabjous.Store.load_and_find(frabjous_type,item);
+          if(Ember.none(first_result)){ first_result = result; }
         }
       }
-      
+      return first_result;
     },
     handlers: function(){
       return _handlers;
