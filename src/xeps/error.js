@@ -15,7 +15,10 @@ Frabjous.Error.instance_properties = {
   error: DS.hasOne(Frabjous.Error,{ embedded: true }),
   has_error: function(){
     return !Ember.none(this.get('error'));
-  }.property('error')
+  }.property('error'),
+  is_success: function(){
+    return !this.get('has_error');
+  }.property('has_error')
 };
 
 Frabjous.Message.reopen( Frabjous.Error.instance_properties );

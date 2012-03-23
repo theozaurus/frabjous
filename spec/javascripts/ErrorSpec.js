@@ -61,6 +61,22 @@ describe("Error", function() {
       
       expect(o.get('has_error')).toBeFalse();
     });
+    
+    it("should set is_success property on object", function(){
+      var s = parseStanza("<message from='romeo@example.net' id='sj2b371v' to='juliet@im.example.com/churchyard' type='error'><error by='example.net' type='cancel'><gone xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'>xmpp:romeo@afterlife.example.net</gone></error></message>");
+      
+      var o = Frabjous.Store.find(Frabjous.Message, s.id());
+      
+      expect(o.get('is_success')).toBeFalse();
+    });
+    
+    it("should not set has_error property on object if there is no error", function(){
+      var s = parseStanza("<message from='juliet@example.com/balcony' to='romeo@example.net' type='chat'><body>My ears have not yet drunk a hundred words</body></message>");
+      
+      var o = Frabjous.Store.find(Frabjous.Message, s.id());
+      
+      expect(o.get('is_success')).toBeTrue();
+    });
   });
 
 });
