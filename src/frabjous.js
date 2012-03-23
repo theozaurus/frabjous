@@ -8,5 +8,6 @@
 //= require_tree ./storage
 //= require_tree ./xeps
 //= require_tree ./callbacks
+//= require_tree ./connection
 
 Frabjous = {};
