@@ -11,10 +11,10 @@ describe("Connection",function(){
     });
     
     it("should call the callback list with proper arguments", function(){
-      var object = new Frabjous.Message({});
+      var object = {special_object: true, get: function(thing){return thing == "is_success";}};
       
       new Mock(Frabjous.Parser);
-      Frabjous.Parser.stubs('handle').returns(new Frabjous.Message({}));
+      Frabjous.Parser.stubs('handle').returns(object);
       
       var callbacks = Frabjous.Connection.get('callbacks');
       new Mock(callbacks);
@@ -54,10 +54,6 @@ describe("Connection",function(){
       
       subject.send(s);
     });
-  });
-  
-  afterEach(function(){
-    Mock.teardown_all();
   });
   
 });
