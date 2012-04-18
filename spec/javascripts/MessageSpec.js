@@ -4,6 +4,79 @@ describe("Message", function() {
 
   beforeEach(function() {
     Frabjous.Store.init();
+    Frabjous.Connection.set('jid','romeo@montague.net/orchard');
+  });
+
+  describe("when creating one from a contact", function(){
+    
+    var contact;
+    
+    beforeEach(function(){
+      contact = factory(Frabjous.Contact,{jid: 'juliet@capulet.com/balcony'});
+      
+      new Mock(Frabjous.Connection);
+      Frabjous.Connection.stubs('_send_now');
+    });
+    
+    it("should send a basic message", function(){
+      new Mock(Frabjous.Connection);
+      
+      var expected = "<message xmlns='jabber:client' to='juliet@capulet.com/balcony' from='romeo@montague.net/orchard'><body>Hello &amp; Goodbye, 1 &gt; 2</body></message>";
+      Frabjous.Connection.spies('send').passing_xml(expected);
+      
+      contact.message("Hello & Goodbye, 1 > 2");
+    });
+    
+    it("should support a subject", function(){
+      new Mock(Frabjous.Connection);
+      
+      var expected = "<message xmlns='jabber:client' to='juliet@capulet.com/balcony' from='romeo@montague.net/orchard'><body>Shall I hear more, or shall I speak at this?</body><subject>I implore you</subject></message>";
+      Frabjous.Connection.spies('send').passing_xml(expected);
+      
+      contact.message("Shall I hear more, or shall I speak at this?",{subject: "I implore you"});
+    });
+    
+    it("should support a thread", function(){
+      var expected = "<message xmlns='jabber:client' to='juliet@capulet.com/balcony' from='romeo@montague.net/orchard'><body>Shall I hear more, or shall I speak at this?</body><thread>123asd</thread></message>";
+      Frabjous.Connection.spies('send').passing_xml(expected);
+      
+      contact.message("Shall I hear more, or shall I speak at this?",{thread: "123asd"});
+    });
+    
+    it("should support a from", function(){
+      var expected = "<message xmlns='jabber:client' to='juliet@capulet.com/balcony' from='sneaky@hidden.net'><body>Shhhrrp</body></message>";
+      Frabjous.Connection.spies('send').passing_xml(expected);
+
+      contact.message("Shhhrrp",{from: "sneaky@hidden.net"});
+    });
+    
+    it("should support a type", function(){
+      var expected = "<message xmlns='jabber:client' to='juliet@capulet.com/balcony' from='romeo@montague.net/orchard' type='chat'><body>Shhhrrp</body></message>";
+      Frabjous.Connection.spies('send').passing_xml(expected);
+
+      contact.message("Shhhrrp",{type: "chat"});
+    });
+    
+    it("should support an id", function(){
+      var expected = "<message id='ase4' xmlns='jabber:client' to='juliet@capulet.com/balcony' from='romeo@montague.net/orchard'><body>Shhhrrp</body></message>";
+      Frabjous.Connection.spies('send').passing_xml(expected);
+
+      contact.message("Shhhrrp",{id: "ase4"});
+    });
+    
+    it("should support callbacks", function(){
+      var callback = {errored: function(){}};
+      
+      contact.message("foo", {id: '213', callbacks: callback});
+      
+      expect(Frabjous.Connection.callbacks.find('213')).toIncludeCallback(callback);
+    });
+    
+    it("should create a message object", function(){
+      var message = contact.message("Hello");
+      expect(message.get('body')).toEqual("Hello");
+    });
+    
   });
 
   describe("when received", function(){

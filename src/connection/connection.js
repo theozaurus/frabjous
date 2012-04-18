@@ -1,6 +1,7 @@
 // This object will be overridden by a real connection adapter, but is here as a holding spot
 Frabjous.Connection = Ember.Object.create({
   status:  null,
+  jid: null,
   connect: function(){
     Frabjous.Log.error("Please override connect with the adapter you want to use");
   },

@@ -47,7 +47,24 @@ Frabjous.Contact.reopen({
   _messages_from: DS.hasMany('Frabjous.Message'),
   messages_from: function(){ return this.get('_messages_from'); }.property('_messages_from.@each'),
   _messages_to: DS.hasMany('Frabjous.Message'),
-  messages_to: function(){ return this.get('_messages_to'); }.property('_messages_to.@each')
+  messages_to: function(){ return this.get('_messages_to'); }.property('_messages_to.@each'),
+  message: function(body,opts){
+    opts = opts || {};
+    var to = this.get('jid');
+    
+    var attributes = {};
+    attributes.to = to;
+    attributes.from = opts.from || Frabjous.Connection.get('jid');
+    if(opts.id){ attributes.id = opts.id; }
+    if(opts.type){ attributes.type = opts.type; }
+    
+    var xml = new Frabjous.XML.builder("message", attributes);
+    xml.c("body", {}, body);
+    if(opts.subject){ xml.c("subject", {}, opts.subject); }
+    if(opts.thread){ xml.c("thread", {}, opts.thread); }
+    
+    return Frabjous.Connection.send(xml.toString(), opts.callbacks);
+  }
 });
 
 Frabjous.Parser.register("Message", function(stanza){
