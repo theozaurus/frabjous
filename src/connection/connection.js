@@ -26,9 +26,11 @@ Frabjous.Connection = Ember.Object.create({
     callbacks = callbacks || [];
     
     this.get('callbacks').add(s.id(),callbacks);
-    Frabjous.Parser.handle(s);
+    var obj = Frabjous.Parser.handle(s);
     
     this._send_now(stanza);
+    
+    return obj;
   },
   callbacks: new Frabjous.CallbackList()
 });

@@ -54,6 +54,16 @@ describe("Connection",function(){
       
       subject.send(s);
     });
+    
+    it("should return the primary object created", function(){
+      new Mock(subject);
+      subject.stubs('_send_now');
+      
+      var s = "<message type='chat' to='bob@bar.com' from='alice@bar.com'><body>hello there</body></message>";
+      var m = subject.send(s);
+      
+      expect(m.get('body')).toEqual('hello there');
+    });
   });
   
 });
