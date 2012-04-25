@@ -62,9 +62,7 @@ describe("Parser", function(){
       // Remove temp handler
       delete Frabjous.Parser.handlers().Temp;
 
-      // If this is undefined it hasn't been saved
-      var r = Frabjous.Store.clientIdForId(Frabjous.Message, "asdf123");
-      expect(r).toBeUndefined();
+      expect(Frabjous.Store).toNotHaveItem(Frabjous.Message,"asdf123");
     });
     
   });

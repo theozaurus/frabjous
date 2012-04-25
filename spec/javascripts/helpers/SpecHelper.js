@@ -45,6 +45,10 @@ beforeEach(function() {
     toBeDirty: function(){
       return this.actual.isDirty;
     },
+    toNotHaveItem: function(expected_type, expected_id){
+      var result = this.actual.clientIdForId(expected_type, expected_id);
+      return typeof result == "undefined";
+    },
     toIncludeCallback: function(expected){ 
       var make_bare = function(e){
         return {
