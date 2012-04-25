@@ -32,8 +32,18 @@ Frabjous.ParsedItems = function(){
         originalItem = {};
       }
 
+      // Track store value
+      storeOrig = originalItem.store;
+      storeNew  = newItem.store;
+      
       originalItem = deep_merge(originalItem,newItem);
-
+      
+      // If store value has been set on either to true then
+      // make sure the originalItem is updated to have it true too
+      if(!Ember.none(storeNew)||!Ember.none(storeOrig)){
+        originalItem.store = storeOrig || storeNew;
+      }
+      
       data[id] = originalItem;
       return originalItem;
     }    

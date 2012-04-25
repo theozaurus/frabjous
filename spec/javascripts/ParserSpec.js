@@ -2,6 +2,10 @@ describe("Parser", function(){
   
   var subject = Frabjous.Parser;
   
+  beforeEach(function(){
+    Frabjous.Store.init();
+  });
+  
   describe("handle", function(){
     
     it("should return the first created object", function(){
@@ -37,6 +41,30 @@ describe("Parser", function(){
       var error = o.get('error');
       expect(error).toBeDefined();
       expect(error.get('condition')).toEqual('remote-server-not-found');
+    });
+    
+    it("should not create an object if store equals false", function(){
+      var request = createStanza("<message id='asdf123' type='chat'><body>foo</body></message>");
+      
+      // Add in a handler that will add store false to object
+      Frabjous.Parser.handlers().Temp = {
+        name: "Temp",
+        parse: function(){
+          return {
+            id:    "asdf123",
+            store: false
+          };
+        }
+      };
+      
+      subject.handle(request);
+
+      // Remove temp handler
+      delete Frabjous.Parser.handlers().Temp;
+
+      // If this is undefined it hasn't been saved
+      var r = Frabjous.Store.clientIdForId(Frabjous.Message, "asdf123");
+      expect(r).toBeUndefined();
     });
     
   });

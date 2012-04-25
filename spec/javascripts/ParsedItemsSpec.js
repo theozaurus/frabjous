@@ -33,6 +33,17 @@ describe("ParsedItems", function(){
       expect(returned).toEqual({id: "23", foo: "one", bar: "2", baz: "three"});
       expect(items.all()).toEqual([{id: "23", foo: "one", bar: "2", baz: "three"}]);
     });
+    it("should keep store set to true if has been set, regardless of order", function(){
+      items.add({id: "23", foo: "1", bar: "2", store: true });
+      var returned = items.add({id: "23", store: false });
+      
+      expect(returned).toEqual({id: "23", foo: "1", bar: "2", store: true});
+      
+      items.add({id: "23", foo: "1", bar: "2", store: false });
+      returned = items.add({id: "23", store: true });
+      
+      expect(returned).toEqual({id: "23", foo: "1", bar: "2", store: true});
+    });
     it("should deep merge objects", function(){
       items.add({id: "23", nested: {foo: "bar"}});
       

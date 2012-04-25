@@ -44,8 +44,11 @@ Frabjous.Parser = function(){
       var first_result;
       for(var i in items){
         if(items.hasOwnProperty(i)){
-          var result = create_or_update(items[i]);
-          if(Ember.none(first_result)){ first_result = result; }
+          // Create or update an item unless the parser has set store to false
+          if(!items[i].hasOwnProperty('store') && items[i].load !== false){
+            var result = create_or_update(items[i]);
+            if(Ember.none(first_result)){ first_result = result; }
+          }
         }
       }
       
