@@ -14,7 +14,7 @@ Frabjous.CallbackList = (function(){
       return callbacks;
     };
     
-    martial = function(callbacks){
+    marshal = function(callbacks){
       callbacks = $.map(callbacks,function(c){
         if(c instanceof Frabjous.Callback){
           return c;
@@ -35,7 +35,7 @@ Frabjous.CallbackList = (function(){
       callbacks = make_array(callbacks);
       
       // Make sure callbacks are Frabjous.Callback
-      callbacks = martial(callbacks);
+      callbacks = marshal(callbacks);
       
       // Add them
       var current = this.find(id);
