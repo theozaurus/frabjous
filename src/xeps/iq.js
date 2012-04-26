@@ -1,5 +1,6 @@
 //= require ember-data
 //= require jquery
+//= require_tree ../connection
 
 Frabjous.Iq = Frabjous.Permanent.extend({
   id:               DS.attr('string'),
@@ -38,15 +39,43 @@ Frabjous.Iq = Frabjous.Permanent.extend({
   }
 });
 
+// If an IQ is unrecognised, reply with service-unavailable
+Frabjous.Connection.get('callbacks').add({
+  success: function(obj){
+    var attributes = {
+      from: obj.get('to'),
+      to:   obj.get('from'),
+      id:   obj.get('id'),
+      type: 'error'
+    };
+    
+    var payload = obj.get('stanza').root().children()[0];
+    
+    var xml = new Frabjous.XML.builder("iq", attributes);
+    xml.cnode(payload);
+    xml.up();
+    xml.c("error", {type: "cancel"});
+    xml.c("service-unavailable", {xmlns:'urn:ietf:params:xml:ns:xmpp-stanzas'});
+    
+    Frabjous.Connection.send(xml.toString());
+  },
+  is_match: function(obj){
+    return obj.get('is_temporary') && obj.get('stanza_type') == "iq";
+  },
+  must_keep: true
+});
+
 Frabjous.Parser.register("Iq", function(stanza){
   
   if( stanza.is_iq() ){
     var parsed = {};
-    parsed.id      = stanza.id();
-    parsed.from    = stanza.from();
-    parsed.to      = stanza.to();
-    parsed.type    = stanza.type();
-    parsed.store   = false;
+    parsed.stanza_type = "iq";
+    parsed.stanza      = stanza;
+    parsed.id          = stanza.id();
+    parsed.from        = stanza.from();
+    parsed.to          = stanza.to();
+    parsed.type        = stanza.type();
+    parsed.store       = false;
     
     parsed.frabjous_type = Frabjous.Iq;
     
