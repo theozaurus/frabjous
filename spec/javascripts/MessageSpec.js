@@ -64,12 +64,20 @@ describe("Message", function() {
       contact.message("Shhhrrp",{id: "ase4"});
     });
     
-    it("should support callbacks", function(){
-      var callback = {errored: function(){}};
+    it("should support callbacks with matching based on id", function(){
+      var test_1;
+      var test_2;
+      var callback = {completed: function(){test_1 = 1;},error: function(){test_2 = 2;}};
       
-      contact.message("foo", {id: '213', callbacks: callback});
+      contact.message("Hello",{id: '213', callbacks: callback});
       
-      expect(Frabjous.Connection.callbacks.find('213')).toIncludeCallback(callback);
+      expect(test_1).toBeUndefined();
+      expect(test_2).toBeUndefined();
+      
+      Frabjous.Connection.receive("<message id='213' from='romeo@montague.net/orchard' to='juliet@capulet.com/balcony'><body>Foo</body><error type='cancel'><remote-server-not-found xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'/></error></message>");
+      
+      expect(test_1).toEqual(1);
+      expect(test_2).toEqual(2);
     });
     
     it("should create a message object", function(){

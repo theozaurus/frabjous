@@ -4,7 +4,7 @@ Frabjous.CallbackList = (function(){
   return function(){
     
     // Private variables
-    var list = {};
+    var list;
     
     // Private functions
     make_array = function(callbacks){
@@ -26,11 +26,11 @@ Frabjous.CallbackList = (function(){
     };
     
     // Privileged functions
-    this.find = function(id){
-      return list[id] || [];
+    this.size = function(){
+      return list.length;
     };
     
-    this.add = function(id,callbacks){    
+    this.add = function(callbacks){    
       // Make sure callbacks is always an array
       callbacks = make_array(callbacks);
       
@@ -38,29 +38,28 @@ Frabjous.CallbackList = (function(){
       callbacks = marshal(callbacks);
       
       // Add them
-      var current = this.find(id);
-      list[id] = current.concat.apply(current,callbacks);
+      list = list.concat.apply(list,callbacks);
+      return callbacks;
     };
     
-    this.clear = function(id){
-      // Will clear all callbacks for a specified id
-      delete list[id];
+    this.clear = function(){
+      list = [];
     };
     
-    this.clear_all = function(){
-      // Will clear all callbacks
-      list = {};
+    this.handle = function(issuccess){
+      // Scan list in reverse order so we can delete elements
+      // without causing problems
+      var args = Array.prototype.slice.call(arguments);
+      for(var i = list.length - 1; i >= 0; i--){
+        // Call handle on each callback
+        var result = list[i].handle.apply(this,args);
+        // Returned falsey so remove callback
+        if(!result){ list.splice(i,1); }
+      }
     };
     
-    this.handle = function(id,issuccess){
-      // Get all arguments passed bar first one
-      var args = Array.prototype.slice.call(arguments).slice(1);
-      $.each(this.find(id),function(i,callback){
-        callback.handle.apply(this,args);
-      });
-      // Clean up callbacks
-      this.clear(id);
-    };
+    // Initialize list
+    this.clear();
     
   };
   

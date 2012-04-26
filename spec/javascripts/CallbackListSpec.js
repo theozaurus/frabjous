@@ -2,103 +2,80 @@ describe("CallbackList",function(){
   
   var subject;
   
+  var match = function(){};
+  
+  var bare_callback_factory = function(){
+    return {completed: function(){}, is_match: match};
+  };
+  
+  var callback_factory = function(){
+    return new Frabjous.Callback(bare_callback_factory());
+  };
+  
+  beforeEach(function(){
+    subject = new Frabjous.CallbackList();
+  });
+  
   describe("add", function(){
     
-    beforeEach(function(){
-      subject = new Frabjous.CallbackList();
-    });
-    
     it("should allow adding of one bare callback", function(){
-      var id = "12";
-      var bare_callback = {completed: function(){}};
+      var bare_callback = bare_callback_factory();
       
-      subject.add(id,bare_callback);
-            
-      expect(subject.find(id)).toIncludeCallback(bare_callback);
+      var result = subject.add(bare_callback);
+      
+      expect(result).toIncludeCallback(bare_callback);
     });
     
     it("should allow adding of an array of bare callbacks", function(){
-      var id = "12";
-      var bare_callbacks = [{completed: function(){}},{error: function(){}}];
+      var bare_callbacks = [bare_callback_factory(),bare_callback_factory()];
       
-      subject.add(id,bare_callbacks);
+      var result = subject.add(bare_callbacks);
       
-      expect(subject.find(id)).toIncludeCallbacks(bare_callbacks);
+      expect(result).toIncludeCallback(bare_callbacks);
     });
     
     it("should allow adding of one callback", function(){
-      var id = "345";
-      var callback = new Frabjous.Callback({completed: function(){}});
+      var callback = callback_factory();
       
-      subject.add(id,callback);
+      var result = subject.add(callback);
       
-      expect(subject.find(id)).toIncludeCallback(callback);
+      expect(result).toIncludeCallback(callback);
     });
     
     it("should allow adding of an array of callbacks", function(){
-      var id = "345";
-      var callback1 = new Frabjous.Callback({completed: function(){}});
-      var callback2 = new Frabjous.Callback({completed: function(){}});
+      var callback1 = callback_factory();
+      var callback2 = callback_factory();
       var callbacks = [callback1,callback2];
       
-      subject.add(id,callbacks);
+      var result = subject.add(callbacks);
       
-      expect(subject.find(id)).toIncludeCallbacks(callbacks);
+      expect(result).toIncludeCallback(callbacks);
     });
     
-  });
-  
-  describe("find", function(){
-    it("should return an empty array if no callbacks exist", function(){
-      expect(subject.find("12")).toEqual([]);
-    });
-    
-    it("should return an array of the correct callbacks if there are some", function(){
-      var callback1 = {completed: function(){}};
-      var callback2 = {completed: function(){}};
-      
-      subject.add("12", callback1);
-      subject.add("13", callback2);
-      
-      expect(subject.find("13")).toIncludeCallback(callback2);
-    });
   });
   
   describe("clear", function(){
-    it("should clear a certain id's callbacks", function(){
-      var callback1 = {completed: function(){}};
-      var callback2 = {completed: function(){}};
-      subject.add("12", callback1);
-      subject.add("13", callback2);
-      
-      subject.clear("12");
-      
-      expect(subject.find("12")).toEqual([]);
-      expect(subject.find("13")).toIncludeCallback(callback2);
-    });
-  });
-  
-  describe("clear_all", function(){
     it("should clear all callbacks", function(){
-      var callback1 = {completed: function(){}};
-      var callback2 = {completed: function(){}};
-      subject.add("12", callback1);
-      subject.add("13", callback2);
+      var callback1 = bare_callback_factory();
+      var callback2 = bare_callback_factory();
+      subject.add(callback1);
+      subject.add(callback2);
       
-      subject.clear_all();
+      expect(subject.size()).toEqual(2);
       
-      expect(subject.find("12")).toEqual([]);
-      expect(subject.find("13")).toEqual([]);
+      subject.clear();
+      
+      expect(subject.size()).toEqual(0);
     });
   });
   
   describe("handle", function(){
     
-    it("should not run any callbacks if none exist for that id", function(){
+    it("should not run any callbacks if none match", function(){
       var ran = false;
-      subject.add("12", {completed: function(){ ran = true; }});
+      subject.add({completed: function(){ ran = true; }, is_match: function(){return false;}});
       
-      subject.handle("15",true);
+      subject.handle();
       
       expect(ran).toBeFalse();
     });
@@ -106,17 +83,17 @@ describe("CallbackList",function(){
     it("should run callbacks", function(){
       var ran1 = false;
       var ran2 = false;
-      subject.add("12", {completed: function(){ ran1 = true; }});
-      subject.add("12", {completed: function(){ ran2 = true; }});
+      subject.add({completed: function(){ ran1 = true; }, is_match: function(){return true;}});
+      subject.add({completed: function(){ ran2 = true; }, is_match: function(){return true;}});
       
-      subject.handle("12",true);
+      subject.handle();
       
       expect(ran1).toBeTrue();
       expect(ran2).toBeTrue();
     });
     
     it("should pass correct arguments to callback", function(){
-      var callback = new Frabjous.Callback({});
+      var callback = callback_factory();
       var first, second, third, fourth = false;
       
       // Override the callbacks handle function with our mock
@@ -127,9 +104,9 @@ describe("CallbackList",function(){
         fourth = extra3;
       };
       
-      subject.add("12",callback);
+      subject.add(callback);
       
-      subject.handle("12",true,"one","two","three");
+      subject.handle(true,"one","two","three");
       
       expect( first  ).toBeTrue();
       expect( second ).toEqual("one");
@@ -137,13 +114,62 @@ describe("CallbackList",function(){
       expect( fourth ).toEqual("three");
     });
     
-    it("should remove all callbacks after they have been run", function(){
-      subject.add("12", {completed: function(){ ran = true; }});
-      subject.add("12", {completed: function(){ ran = true; }});
+    it("should remove callback if must_keep returns false", function(){
+      var alive = null;
+
+      var callback = {completed: function(){alive = true;}, must_keep: false, is_match: function(){return true;}};
       
-      subject.handle("12",true);
+      // Register callback
+      subject.add(callback);
       
-      expect(subject.find("12")).toEqual([]);
+      // Size increase, alive not affected
+      expect(subject.size()).toEqual(1);
+      expect(alive).toBeNull();
+      
+      // Callback run
+      subject.handle();
+      
+      // Size decrease and alive set
+      expect(subject.size()).toEqual(0);
+      expect(alive).toBeTrue();
+      
+      // Reset alive
+      alive = false;
+      
+      // Callback run
+      subject.handle();
+      
+      // alive not touched
+      expect(alive).toBeFalse();
+    });
+    
+    it("should not remove callback if must_keep returns true", function(){
+      var alive = null;
+
+      var callback = {completed: function(){alive = true;}, must_keep: true, is_match: function(){return true;}};
+      
+      // Register callback
+      subject.add(callback);
+      
+      // Size increase, alive not affected
+      expect(subject.size()).toEqual(1);
+      expect(alive).toBeNull();
+      
+      // Callback run
+      subject.handle();
+      
+      // Size remains constant and alive set
+      expect(subject.size()).toEqual(1);
+      expect(alive).toBeTrue();
+      
+      // Reset alive
+      alive = false;
+      
+      // Callback run
+      subject.handle();
+      
+      // alive not touched
+      expect(alive).toBeTrue();
     });
     
   });

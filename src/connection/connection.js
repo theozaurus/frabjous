@@ -19,15 +19,26 @@ Frabjous.Connection = Ember.Object.create({
     var object = Frabjous.Parser.handle(s);
     
     // Deal with callbacks
-    this.get('callbacks').handle(s.id(),object.get('is_success'),object);
+    this.get('callbacks').handle(object.get('is_success'),object);
   },
   send: function(stanza,callbacks){
     // Used to deal with callbacks before handing off to low level XMPP client
     var s = new Frabjous.Stanza(stanza);
     callbacks = callbacks || [];
     
-    this.get('callbacks').add(s.id(),callbacks);
     var obj = Frabjous.Parser.handle(s);
+    if(obj){
+      var outgoing_id  = obj.get('id');
+      // Add ID matching if not already existing
+      if(!(callbacks instanceof Array) && typeof callbacks == 'object'){ callbacks = [callbacks]; }
+      $.each(callbacks,function(i,c){
+        if(!c.is_match){
+          c.is_match = function(incoming){ return incoming.get('id') == outgoing_id; };
+        }
+      });      
+    }
+
+    this.get('callbacks').add(callbacks);
     
     this._send_now(stanza);
     

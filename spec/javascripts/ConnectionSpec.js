@@ -19,7 +19,7 @@ describe("Connection",function(){
       var callbacks = Frabjous.Connection.get('callbacks');
       new Mock(callbacks);
       
-      callbacks.expects('handle').passing("a",true,object);
+      callbacks.expects('handle').passing(true,object);
       
       subject.receive("<message id='a' type='chat' to='bob@bar.com' from='alice@bar.com'><body>hello there</body></message>");
     });
@@ -35,15 +35,24 @@ describe("Connection",function(){
       subject.send("<message type='chat' to='bob@bar.com' from='alice@bar.com'><body>hello there</body></message>");
     });
     
-    it("should add any callbacks to the correct id", function(){
+    it("should add any callbacks with id matching", function(){
       new Mock(subject);
       subject.stubs('_send_now');
       
-      var callback = {completed: function(){}};
+      var ran;
+      var callback = {completed: function(){ran=true;}};
       
-      subject.send("<message id='33' type='chat' to='bob@bar.com' from='alice@bar.com'><body>hello there</body></message>", callback);
+      subject.send("<message id='ud7n1f4h' from='romeo@montague.net/orchard' to='bar@example.org' type='chat'><body>yt?</body></message>", callback);
       
-      expect(subject.callbacks.find('33')).toIncludeCallback(callback);
+      expect(ran).toBeUndefined();
+      
+      subject.receive("<message id='34' type='chat' to='romeo@montague.net/orchard' from='bar@example.org'><body>Why hello</body></message>");
+      
+      expect(ran).toBeUndefined();
+      
+      subject.receive("<message id='ud7n1f4h' from='bar@example.org' to='romeo@montague.net/orchard' type='error'><error type='cancel'><remote-server-not-found xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'/></error></message>");
+      
+      expect(ran).toBeTrue();
     });
     
     it("should pass stanza to _send_now", function(){
