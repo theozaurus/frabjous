@@ -2,7 +2,7 @@
 //= require ember-data
 //= require ./contact
 
-Frabjous.Presence = DS.Model.extend({
+Frabjous.Presence = Frabjous.Permanent.extend({
   from:      DS.attr('jidString'),
   to:        DS.attr('jidString'),
   type:      DS.attr('string'),

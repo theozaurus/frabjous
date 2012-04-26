@@ -109,6 +109,11 @@ var parseStanza = function(string){
   return stanza;
 };
 
+var processStanza = function(string){
+  var stanza = createStanza(string);
+  return Frabjous.Parser.handle(stanza);
+};
+
 var factory = function(type,details){
   var result = Frabjous.Store.load(type,details);
   return Frabjous.Store.find(type,result.id);

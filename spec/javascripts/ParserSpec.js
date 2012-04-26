@@ -43,7 +43,7 @@ describe("Parser", function(){
       expect(error.get('condition')).toEqual('remote-server-not-found');
     });
     
-    it("should not create an object if store equals false", function(){
+    it("should not create a Permanent object if store equals false", function(){
       var request = createStanza("<message id='asdf123' type='chat'><body>foo</body></message>");
       
       // Add in a handler that will add store false to object
@@ -63,6 +63,23 @@ describe("Parser", function(){
       delete Frabjous.Parser.handlers().Temp;
 
       expect(Frabjous.Store).toNotHaveItem(Frabjous.Message,"asdf123");
+    });
+    
+    it("should return a Temporary object if store equals false", function(){
+      var request = createStanza("<message id='asdf123' type='chat'><body>foo</body></message>");
+      
+      // Add in a handler that will add store false to object
+      Frabjous.Parser.handlers().Temp = {
+        name: "Temp",
+        parse: function(){ return {id: "asdf123", type: "chat", body: "foo", store: false }; }
+      };
+      
+      var result = subject.handle(request);
+
+      // Remove temp handler
+      delete Frabjous.Parser.handlers().Temp;
+
+      expect(result.get('is_temporary')).toBeTrue();
     });
     
   });

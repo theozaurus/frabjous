@@ -9,8 +9,6 @@ Frabjous.Parser = function(){
     var frabjous_type = item.frabjous_type;
     delete item.frabjous_type;
     
-    Frabjous.log.debug("Parsed "+frabjous_type+":",item);
-    
     // Consider handling errors in another way
     var existing  = !Ember.none(Frabjous.Store.clientIdForId(frabjous_type,item.id));
     var has_error = !Ember.none(item.error);
@@ -25,6 +23,17 @@ Frabjous.Parser = function(){
       Frabjous.log.debug("Creating new object "+frabjous_type+":",item);
       return Frabjous.Store.load_and_find(frabjous_type,item);
     }
+  };
+
+  var create_temporary = function(item){
+    Frabjous.log.debug("Creating temporary object");
+    var o = Frabjous.Temporary.create();
+    for(var n in item){
+      if(item.hasOwnProperty(n)){
+        o.set(n,item[n]);
+      }
+    }
+    return o;
   };
 
   return {
@@ -45,10 +54,15 @@ Frabjous.Parser = function(){
       for(var i in items){
         if(items.hasOwnProperty(i)){
           // Create or update an item unless the parser has set store to false
-          if(!items[i].hasOwnProperty('store') && items[i].load !== false){
-            var result = create_or_update(items[i]);
-            if(Ember.none(first_result)){ first_result = result; }
+          var result;
+          var item = items[i];
+          Frabjous.log.debug("Parsed "+item.frabjous_type+":",item);
+          if(!items[i].hasOwnProperty('store') && item.load !== false){
+            result = create_or_update(item);
+          }else{
+            result = create_temporary(item);
           }
+          if(Ember.none(first_result)){ first_result = result; }
         }
       }
       

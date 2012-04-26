@@ -1,7 +1,7 @@
 //= require ember-data
 //= require jquery
 
-Frabjous.Iq = DS.Model.extend({
+Frabjous.Iq = Frabjous.Permanent.extend({
   id:               DS.attr('string'),
   from:             DS.attr('jidString'),
   to:               DS.attr('jidString'),

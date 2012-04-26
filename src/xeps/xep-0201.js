@@ -1,6 +1,6 @@
 //= require ./message
 
-Frabjous.Thread = DS.Model.extend({
+Frabjous.Thread = Frabjous.Permanent.extend({
   parent_id:        DS.attr('string'),
   child_threads:    DS.hasMany('Frabjous.Thread'),
   _messages:        DS.hasMany('Frabjous.Message'),

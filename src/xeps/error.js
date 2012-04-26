@@ -2,8 +2,9 @@
 //= require jquery
 //= require ./message
 //= require ./presence
+//= require ./iq
 
-Frabjous.Error = DS.Model.extend({
+Frabjous.Error = Frabjous.Permanent.extend({
   by:                DS.attr('string'),
   type:              DS.attr('string'),
   text:              DS.attr('string'),
@@ -12,7 +13,6 @@ Frabjous.Error = DS.Model.extend({
 });
 
 Frabjous.Error.instance_properties = {
-  error: DS.hasOne(Frabjous.Error,{ embedded: true }),
   has_error: function(){
     return !Ember.none(this.get('error'));
   }.property('error'),
@@ -21,8 +21,11 @@ Frabjous.Error.instance_properties = {
   }.property('has_error')
 };
 
-Frabjous.Message.reopen( Frabjous.Error.instance_properties );
-Frabjous.Presence.reopen( Frabjous.Error.instance_properties );
+Frabjous.Temporary.reopen( Frabjous.Error.instance_properties );
+Frabjous.Permanent.reopen( Frabjous.Error.instance_properties );
+Frabjous.Permanent.reopen({
+  error: DS.hasOne(Frabjous.Error,{ embedded: true })
+});
 
 Frabjous.Parser.register("Error", function(stanza){
   
@@ -46,7 +49,7 @@ Frabjous.Parser.register("Error", function(stanza){
     if(payload.length === 0){ payload = null; }
     
     error.id                = stanza.id();
-    error.by                = $error_stanza.attr("by");
+    error.by                = $error_stanza.attr("by") || null;
     error.type              = $error_stanza.attr("type");
     error.text              = text;
     error.condition         = condition_stanza[0].nodeName;

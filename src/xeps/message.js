@@ -2,7 +2,7 @@
 //= require jquery
 //= require ./contact
 
-Frabjous.Message = DS.Model.extend({
+Frabjous.Message = Frabjous.Permanent.extend({
   from:             DS.attr('jidString'),
   to:               DS.attr('jidString'),
   type:             DS.attr('string'),

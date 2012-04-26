@@ -1,6 +1,6 @@
 //= require ember-data
 
-Frabjous.Contact = DS.Model.extend({
+Frabjous.Contact = Frabjous.Permanent.extend({
   primaryKey: 'jid',
   jid:        DS.attr('jidString')
 });

@@ -6,7 +6,7 @@
 //= require ./xep-0082
 //= require ./xep-0201
 
-Frabjous.Delay = DS.Model.extend({
+Frabjous.Delay = Frabjous.Permanent.extend({
   stamp:  DS.attr('Xep0082dateString'),
   from:   DS.attr('jidString'),
   reason: DS.attr('string')
