@@ -1,3 +1,6 @@
+//= require_tree ../callbacks
+//= require_tree ../primitives
+
 // This object will be overridden by a real connection adapter, but is here as a holding spot
 Frabjous.Connection = Ember.Object.create({
   status:  null,

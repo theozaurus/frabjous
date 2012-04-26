@@ -13,20 +13,20 @@ Frabjous.Parser = function(){
     var existing  = !Ember.none(Frabjous.Store.clientIdForId(frabjous_type,item.id));
     var has_error = !Ember.none(item.error);
     if(existing && has_error){
-      Frabjous.log.debug("Adding error to existing object "+frabjous_type+":",item.error);
+      Frabjous.Log.debug("Adding error to existing object "+frabjous_type+":",item.error);
       var o = Frabjous.Store.find(frabjous_type,item.id);
       var raw = o.toJSON();
       raw.error = item.error;
       return Frabjous.Store.load_and_find(frabjous_type,raw);
     } else {
       // No error, or no existing object
-      Frabjous.log.debug("Creating new object "+frabjous_type+":",item);
+      Frabjous.Log.debug("Creating new object "+frabjous_type+":",item);
       return Frabjous.Store.load_and_find(frabjous_type,item);
     }
   };
 
   var create_temporary = function(item){
-    Frabjous.log.debug("Creating temporary object");
+    Frabjous.Log.debug("Creating temporary object");
     var o = Frabjous.Temporary.create();
     for(var n in item){
       if(item.hasOwnProperty(n)){
@@ -39,7 +39,7 @@ Frabjous.Parser = function(){
   return {
     // Class Methods
     handle: function(stanza){
-      Frabjous.log.debug("Received:", stanza.toString());
+      Frabjous.Log.debug("Received:", stanza.toString());
       var itemsList = new Frabjous.ParsedItems();
       
       for(var h in _handlers){
@@ -56,7 +56,7 @@ Frabjous.Parser = function(){
           // Create or update an item unless the parser has set store to false
           var result;
           var item = items[i];
-          Frabjous.log.debug("Parsed "+item.frabjous_type+":",item);
+          Frabjous.Log.debug("Parsed "+item.frabjous_type+":",item);
           if(!items[i].hasOwnProperty('store') && item.load !== false){
             result = create_or_update(item);
           }else{

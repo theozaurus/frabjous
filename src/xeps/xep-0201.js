@@ -20,12 +20,12 @@ Frabjous.Message.reopen({
 
     if( Ember.none(client_id) ){
       // Create
-      Frabjous.log.debug("Creating Frabjous.Thread " + id);
+      Frabjous.Log.debug("Creating Frabjous.Thread " + id);
       Frabjous.Store.load_and_find(type,{id: id, _messages:[this.get('id')], parent_id: parent_id});
       thread = Frabjous.Store.find(type,id);
     }else{
       // Update
-      Frabjous.log.debug("Updating Frabjous.Thread " + id);
+      Frabjous.Log.debug("Updating Frabjous.Thread " + id);
       thread = Frabjous.Store.find(type,id);
       thread.get('_messages').addObject(this);
       if( !Ember.none(parent_id) ){
@@ -42,12 +42,12 @@ Frabjous.Message.reopen({
 
     if( Ember.none(client_id) ){
       // Create
-      Frabjous.log.debug("Creating parent Frabjous.Thread " + id);
+      Frabjous.Log.debug("Creating parent Frabjous.Thread " + id);
       Frabjous.Store.load_and_find(type,{id: id, child_threads: [this.get('thread').get('id')]});
       thread = Frabjous.Store.find(type,id);
     }else{
       // Update
-      Frabjous.log.debug("Updating parent Frabjous.Thread " + id);
+      Frabjous.Log.debug("Updating parent Frabjous.Thread " + id);
       thread = Frabjous.Store.find(type,id);
       thread.get('child_threads').addObject(this.get('thread'));
     }
