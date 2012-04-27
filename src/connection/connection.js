@@ -14,7 +14,10 @@ Frabjous.Connection = Ember.Object.create({
   _send_now: function(stanza){
     Frabjous.Log.error("Please override _send_now with the adapter you want to use");
   },
+  _receive_raw: function(stanza){},
   receive: function(stanza){
+    this._receive_raw(stanza);
+    
     // Called when a XMPP stanza is received
     var s = new Frabjous.Stanza(stanza);
     

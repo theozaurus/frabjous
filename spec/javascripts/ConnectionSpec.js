@@ -10,6 +10,15 @@ describe("Connection",function(){
       subject.receive("<message type='chat' to='bob@bar.com' from='alice@bar.com'><body>hello there</body></message>");
     });
     
+    it("should pass the unmodified stanza to _receive_raw", function(){
+      var stanza = "<message id='a' type='chat' to='bob@bar.com' from='alice@bar.com'><body>hello there</body></message>";
+      
+      new Mock(subject);
+      subject.expects('_receive_raw').passing(stanza);
+      
+      subject.receive(stanza);
+    });
+    
     it("should call the callback list with proper arguments", function(){
       var object = {special_object: true, get: function(thing){return thing == "is_success";}};
       
