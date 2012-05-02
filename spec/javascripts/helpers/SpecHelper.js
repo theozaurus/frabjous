@@ -56,6 +56,28 @@ beforeEach(function() {
       var bare_expected = $.map(expected,function(e){ return makeCallbackBare(e); });
       
       return this.env.equals_(bare_actuals, bare_expected);
+    },
+    toBeFeature: function(expected){
+      var makeBare = function(e){
+        return {var: e.get('var')};
+      };
+      
+      var bare_actual = makeBare(this.actual);
+      
+      return this.env.equals_(bare_actual, expected);
+    },
+    toBeIdentity: function(expected){
+      var makeBare = function(e){
+        return {
+          category: e.get('category'),
+          type:     e.get('type'),
+          name:     e.get('name')
+        };
+      };
+      
+      var bare_actual = makeBare(this.actual);
+      
+      return this.env.equals_(bare_actual, expected);
     }
   });
 });

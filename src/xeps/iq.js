@@ -60,7 +60,7 @@ Frabjous.Connection.get('callbacks').add({
     Frabjous.Connection.send(xml.toString());
   },
   is_match: function(obj){
-    return obj.get('is_temporary') && obj.get('stanza_type') == "iq";
+    return obj.get('is_temporary') && obj.get('stanza_type') == "iq" && obj.get('stanza').root().attr('type') == "get";
   },
   must_keep: true
 });
