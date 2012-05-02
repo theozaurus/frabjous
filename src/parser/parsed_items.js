@@ -23,8 +23,7 @@ Frabjous.ParsedItems = function(){
     return obj1;
   };
   
-  // Privileged methods
-  this.add = function(newItem){
+  var add_individual = function(newItem){
     if(!Ember.none(newItem) && !Ember.none(newItem.id)){
       var id = newItem.id;
       var originalItem = data[id];
@@ -46,7 +45,18 @@ Frabjous.ParsedItems = function(){
       
       data[id] = originalItem;
       return originalItem;
-    }    
+    }
+  };
+  
+  // Privileged methods
+  this.add = function(newItems){
+    if(newItems instanceof Array){
+      return $.map(newItems, function(newItem){
+        return add_individual(newItem);
+      });
+    } else {
+      return add_individual(newItems);
+    }
   };
   
   this.all = function(){

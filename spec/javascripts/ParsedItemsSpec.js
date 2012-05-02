@@ -51,6 +51,11 @@ describe("ParsedItems", function(){
       expect(returned).toEqual({id: "23", nested: {foo: "bar", baz: "b"}});
       expect(items.all()).toEqual([{id: "23", nested: {foo: "bar", baz: "b"}}]);
     });
+    it("should add multiple items to the list and return item", function(){
+      var returned = items.add([{id: "23", foo: "bar"},{id:"24", a: "a"}]);
+      expect(returned).toEqual([{id: "23", foo: "bar"},{id:"24", a: "a"}]);
+      expect(items.all()).toEqual([{id: "23", foo: "bar"},{id:"24", a: "a"}]);
+    });
   });
   
   describe("all", function(){
