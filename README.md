@@ -8,7 +8,7 @@ Just as XMPP standards for "extensible messaging and presence protocol", Frabjou
 Tests
 =====
 
-All of the tests are written in [Jasmine](http://pivotal.github.com/jasmine/). [Sprockets](https://github.com/sstephenson/sprockets) is used to describe dependencies between the files. To run the tests, you will first need to install [Ruby](http://ruby-lang.org) and [Bundler](http://gembundler.com/). Once you have this:
+All of the tests are written in [Jasmine](https://jasmine.github.io/). [Sprockets](https://github.com/sstephenson/sprockets) is used to describe dependencies between the files. To run the tests, you will first need to install [Ruby](http://ruby-lang.org) and [Bundler](http://gembundler.com/). Once you have this:
 
     $ bundle install
     $ rake jasmine
